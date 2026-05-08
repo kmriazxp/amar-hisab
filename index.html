@@ -155,13 +155,11 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 </head>
 <body>
 
-<!-- APP LOADING -->
 <div id="appLoading">
   <div class="spin"></div>
   <div style="font-size:13px;color:var(--muted)">লোড হচ্ছে...</div>
 </div>
 
-<!-- LOGIN SCREEN -->
 <div id="loginScreen">
   <div class="login-logo">💰</div>
   <div class="login-title">আমার হিসাব</div>
@@ -172,7 +170,6 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
   </button>
 </div>
 
-<!-- MAIN APP -->
 <div id="mainApp" style="display:none">
 
   <div class="status-bar">
@@ -190,7 +187,6 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
     <div class="nav-tab" onclick="switchTab('trash',this)">🗑️ ট্র্যাশ</div>
   </div>
 
-  <!-- MAIN TAB -->
   <div id="tab-main">
     <div class="summary-grid">
       <div class="summary-card card-t"><div class="card-icon">🏦</div><div class="card-label">মোট ব্যালেন্স</div><div class="card-amount" id="totalBalance">৳ ০</div></div>
@@ -230,7 +226,6 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
     </div>
   </div>
 
-  <!-- TRASH TAB -->
   <div id="tab-trash" style="display:none">
     <div class="trash-section">
       <div class="history-header" style="margin-top:14px">
@@ -244,7 +239,6 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 
 </div>
 
-<!-- ADD/EDIT MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -257,7 +251,6 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
   </div>
 </div>
 
-<!-- CONFIRM MODAL -->
 <div id="confirmModal">
   <div class="confirm-box">
     <div class="confirm-icon" id="confirmIcon">🗑️</div>
@@ -270,7 +263,6 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
   </div>
 </div>
 
-<!-- EDIT HISTORY MODAL -->
 <div id="historyModal" onclick="closeHistoryOutside(event)">
   <div class="history-modal-box">
     <div class="modal-handle"></div>
@@ -303,53 +295,63 @@ let currentType='', currentFilter='all', editingId=null;
 let txUnsub=null, trashUnsub=null;
 const today = new Date().toISOString().split('T')[0];
 
+// UI Elements
+const loadingOverlay = document.getElementById('appLoading');
+const loginScreen = document.getElementById('loginScreen');
+const mainApp = document.getElementById('mainApp');
+
 // ── COLLECTIONS ──
 function txCol(){ return db.collection('users').doc(currentUser.uid).collection('transactions'); }
 function trashCol(){ return db.collection('users').doc(currentUser.uid).collection('trash'); }
 
-// ── AUTH ──
-auth.onAuthStateChanged(user=>{
-  document.getElementById('appLoading').style.display='none';
-  if(user){
-    currentUser=user;
-    document.getElementById('loginScreen').style.display='none';
-    document.getElementById('mainApp').style.display='block';
-    document.getElementById('userAvatar').src=user.photoURL||'';
-    document.getElementById('userName').textContent=user.displayName||user.email;
-    startListeners();
+// ── AUTH STATE HANDLING ──
+auth.onAuthStateChanged(user => {
+  if (user) {
+    currentUser = user;
+    handleAppLogin(user);
   } else {
-    currentUser=null;
-    document.getElementById('loginScreen').style.display='flex';
-    document.getElementById('mainApp').style.display='none';
-    if(txUnsub) txUnsub();
-    if(trashUnsub) trashUnsub();
+    // রিডাইরেক্ট রেজাল্ট চেক করা (বিশেষ করে রিডাইরেক্ট লগইনের পর)
+    auth.getRedirectResult().then(result => {
+      if (!result || !result.user) {
+        currentUser = null;
+        showLoginScreen();
+        if (txUnsub) txUnsub();
+        if (trashUnsub) trashUnsub();
+      }
+    }).catch(err => {
+      console.error('Redirect Error:', err);
+      showLoginScreen();
+    });
   }
 });
 
-function signInWithGoogle(){
-  // মোবাইলে popup block হয়, তাই redirect ব্যবহার করা হচ্ছে
-  auth.signInWithRedirect(provider).catch(err=>{
-    console.error(err);
-    // redirect কাজ না করলে popup চেষ্টা
-    auth.signInWithPopup(provider).catch(()=>{
-      alert('সাইন ইন ব্যর্থ হয়েছে। পুনরায় চেষ্টা করুন।');
-    });
+function handleAppLogin(user) {
+  loadingOverlay.style.display = 'none';
+  loginScreen.style.display = 'none';
+  mainApp.style.display = 'block';
+  document.getElementById('userAvatar').src = user.photoURL || '';
+  document.getElementById('userName').textContent = user.displayName || user.email;
+  startListeners();
+}
+
+function showLoginScreen() {
+  loadingOverlay.style.display = 'none';
+  loginScreen.style.display = 'flex';
+  mainApp.style.display = 'none';
+}
+
+function signInWithGoogle() {
+  // মোবাইল ব্রাউজারে রিডাইরেক্ট বেশি কার্যকরী
+  auth.signInWithRedirect(provider).catch(err => {
+    console.error('Sign-in Error:', err);
+    showToast('❌ সাইন ইন ব্যর্থ হয়েছে');
   });
 }
 
-// Redirect থেকে ফেরার পর result handle করা
-auth.getRedirectResult().then(result=>{
-  if(result && result.user){
-    // redirect login সফল — onAuthStateChanged এ handle হবে
-  }
-}).catch(err=>{
-  console.error('Redirect error:', err);
-});
-
 function doSignOut(){
-  if(confirm('আপনি কি সাইন আউট করতে চান?')){
-    auth.signOut();
-  }
+  showConfirm('🚪','লগআউট','আপনি কি সাইন আউট করতে চান?','হ্যাঁ','cb-ok', () => {
+    auth.signOut().then(() => location.reload());
+  });
 }
 
 // ── LISTENERS ──
@@ -361,15 +363,11 @@ function startListeners(){
   },err=>{
     setLoading(false);
     console.error('TX listener error:',err);
-    if(err.code==='failed-precondition'){
-      // Index নেই — index ছাড়া load করার চেষ্টা
-      txCol().get().then(snap=>{
-        transactions=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.createdAt-a.createdAt);
-        calcSummary(); renderList();
-      });
-    } else {
-      showToast('❌ সংযোগে সমস্যা হয়েছে');
-    }
+    // Index না থাকলে fallback
+    txCol().get().then(snap=>{
+      transactions=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.createdAt-a.createdAt);
+      calcSummary(); renderList();
+    });
   });
 
   trashUnsub = trashCol().orderBy('deletedAt','desc').onSnapshot(snap=>{
