@@ -452,40 +452,6 @@
     border-color: var(--accent);
     color: #fff;
   }
-
-  /* BACKUP BAR */
-  .backup-bar {
-    display: flex;
-    gap: 8px;
-    padding: 0 14px 14px;
-  }
-
-  .backup-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-    font-family: 'Hind Siliguri', sans-serif;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .backup-btn:active { transform: scale(0.97); }
-
-  .backup-btn.export-btn:hover { color: var(--green); border-color: var(--green); background: var(--green-dim); }
-  .backup-btn.import-btn:hover { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
-  .backup-btn.export-btn { color: var(--green); border-color: #00d68f44; }
-  .backup-btn.import-btn { color: var(--blue); border-color: #4d9fff44; }
-
-  #fileImportInput { display: none; }
 </style>
 </head>
 <body>
@@ -537,17 +503,6 @@
       <span>ব্যয়<br>যোগ</span>
     </div>
   </div>
-</div>
-
-<!-- BACKUP / RESTORE -->
-<div class="backup-bar">
-  <button class="backup-btn export-btn" onclick="exportBackup()">
-    <span>⬇️</span> ব্যাকআপ নিন
-  </button>
-  <button class="backup-btn import-btn" onclick="document.getElementById('fileImportInput').click()">
-    <span>⬆️</span> রিস্টোর করুন
-  </button>
-  <input type="file" id="fileImportInput" accept=".json" onchange="importBackup(event)">
 </div>
 
 <!-- HISTORY -->
@@ -631,10 +586,9 @@
       else if (t.type === 'expense') totalExp += t.amount;
     });
 
-    // মোট ব্যালেন্স = ব্যালেন্স যোগ - ব্যয় (লোন প্রদান প্রভাব ফেলে না)
-    // লোন দেওয়া টাকা আপনারই সম্পদ, তাই মোট ব্যালেন্স অপরিবর্তিত
-    // ফিজিক্যাল ব্যালেন্স = হাতে থাকা টাকা (লোন বাদে)
-    const totalBalance = totalIn - totalExp;
+    // মোট ব্যালেন্স = যা যোগ হয়েছে (ব্যালেন্স + লোন রিসিভড) - ব্যয়
+    // এখানে: মোট ব্যালেন্স = totalIn + loanOut - totalExp (লোন টাকা হাতেই আছে, ব্যবহৃত হয়নি)
+    const totalBalance = totalIn + loanOut - totalExp;
     const physicalBalance = totalIn - loanOut - totalExp;
 
     document.getElementById('totalBalance').textContent = formatAmount(totalBalance);
@@ -776,66 +730,6 @@
     t.textContent = msg;
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2500);
-  }
-
-  function exportBackup() {
-    if (transactions.length === 0) {
-      showToast('⚠️ কোনো তথ্য নেই ব্যাকআপের জন্য');
-      return;
-    }
-    const data = {
-      version: '1.0',
-      exportedAt: new Date().toISOString(),
-      transactions: transactions
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const dateStr = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
-    a.href = url;
-    a.download = `amar-hisab-backup-${dateStr}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('✅ ব্যাকআপ ডাউনলোড হয়েছে!');
-  }
-
-  function importBackup(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target.result);
-        let imported = [];
-        if (Array.isArray(data)) {
-          imported = data;
-        } else if (data.transactions && Array.isArray(data.transactions)) {
-          imported = data.transactions;
-        } else {
-          showToast('❌ ফাইলটি সঠিক ফরম্যাটে নেই');
-          return;
-        }
-        if (imported.length === 0) {
-          showToast('⚠️ ফাইলে কোনো তথ্য নেই');
-          return;
-        }
-        const merge = confirm(`${imported.length}টি লেনদেন পাওয়া গেছে।\n\nবিদ্যমান তথ্যের সাথে যোগ করতে "OK" চাপুন।\nসব মুছে নতুন করে লোড করতে "বাতিল" চাপুন।`);
-        if (merge) {
-          const existingIds = new Set(transactions.map(t => t.id));
-          const newItems = imported.filter(t => !existingIds.has(t.id));
-          transactions = [...transactions, ...newItems];
-          showToast(`✅ ${newItems.length}টি নতুন লেনদেন যোগ হয়েছে!`);
-        } else {
-          transactions = imported;
-          showToast(`✅ ${imported.length}টি লেনদেন লোড হয়েছে!`);
-        }
-        save();
-      } catch (err) {
-        showToast('❌ ফাইল পড়তে সমস্যা হয়েছে');
-      }
-      event.target.value = '';
-    };
-    reader.readAsText(file);
   }
 
   // Keyboard submit
