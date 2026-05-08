@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>আমার হিসাব</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Tiro+Bangla&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --border: #2e3248;
+    --green: #00d68f;
+    --green-dim: #00d68f22;
+    --blue: #4d9fff;
+    --blue-dim: #4d9fff22;
+    --orange: #ff9f43;
+    --orange-dim: #ff9f4322;
+    --red: #ff6b6b;
+    --red-dim: #ff6b6b22;
+    --text: #e8eaf6;
+    --text-muted: #7b80a0;
+    --accent: #7c6df0;
+    --accent-dim: #7c6df022;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Hind Siliguri', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    background: var(--surface);
+    padding: 12px 20px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .status-bar .app-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.3px;
+  }
+
+  /* HEADER CARDS */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 16px 14px 8px;
+  }
+
+  .summary-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 14px 14px 12px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+
+  .summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+  }
+
+  .summary-card.total::before { background: var(--accent); }
+  .summary-card.physical::before { background: var(--green); }
+  .summary-card.loan::before { background: var(--blue); }
+  .summary-card.expense::before { background: var(--red); }
+
+  .card-icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .total .card-icon { background: var(--accent-dim); }
+  .physical .card-icon { background: var(--green-dim); }
+  .loan .card-icon { background: var(--blue-dim); }
+  .expense .card-icon { background: var(--red-dim); }
+
+  .card-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+  }
+
+  .card-amount {
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .total .card-amount { color: var(--accent); }
+  .physical .card-amount { color: var(--green); }
+  .loan .card-amount { color: var(--blue); }
+  .expense .card-amount { color: var(--red); }
+
+  /* ACTION BUTTONS */
+  .action-section {
+    padding: 8px 14px 14px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  .action-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .action-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-user-select: none;
+  }
+
+  .action-btn:active { transform: scale(0.95); opacity: 0.85; }
+
+  .action-btn .btn-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .action-btn.add-balance .btn-icon { background: var(--green-dim); }
+  .action-btn.add-loan .btn-icon { background: var(--blue-dim); }
+  .action-btn.add-expense .btn-icon { background: var(--red-dim); }
+
+  .action-btn span {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* HISTORY */
+  .history-section {
+    padding: 0 14px 100px;
+  }
+
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .clear-btn {
+    font-size: 12px;
+    color: var(--red);
+    background: var(--red-dim);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-weight: 600;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; }
+
+  .transaction-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tx-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .tx-info { flex: 1; min-width: 0; }
+
+  .tx-type {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    margin-bottom: 2px;
+  }
+
+  .tx-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  .tx-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .tx-right { text-align: right; flex-shrink: 0; }
+
+  .tx-amount {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .tx-delete {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .tx-delete:hover { color: var(--red); background: var(--red-dim); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .modal-overlay.active .modal {
+    transform: translateY(0);
+  }
+
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-title .title-badge {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .input-group {
+    margin-bottom: 14px;
+  }
+
+  .input-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+
+  .input-field {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 15px;
+    color: var(--text);
+    font-family: 'Hind Siliguri', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-field:focus { border-color: var(--accent); }
+
+  .input-field::placeholder { color: var(--text-muted); }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Hind Siliguri', sans-serif;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .submit-btn:active { transform: scale(0.97); }
+
+  .btn-balance { background: var(--green); color: #000; }
+  .btn-loan { background: var(--blue); color: #000; }
+  .btn-expense { background: var(--red); color: #fff; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 300;
+    white-space: nowrap;
+    box-shadow: var(--shadow);
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0 12px;
+  }
+
+  .filter-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .filter-tab {
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Hind Siliguri', sans-serif;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .filter-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* BACKUP BAR */
+  .backup-bar {
+    display: flex;
+    gap: 8px;
+    padding: 0 14px 14px;
+  }
+
+  .backup-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: 'Hind Siliguri', sans-serif;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .backup-btn:active { transform: scale(0.97); }
+
+  .backup-btn.export-btn:hover { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+  .backup-btn.import-btn:hover { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
+  .backup-btn.export-btn { color: var(--green); border-color: #00d68f44; }
+  .backup-btn.import-btn { color: var(--blue); border-color: #4d9fff44; }
+
+  #fileImportInput { display: none; }
+</style>
+</head>
+<body>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="app-title">💰 আমার হিসাব</div>
+  <div id="currentTime" style="font-size:12px;color:var(--text-muted)"></div>
+</div>
+
+<!-- SUMMARY CARDS -->
+<div class="summary-grid">
+  <div class="summary-card total">
+    <div class="card-icon">🏦</div>
+    <div class="card-label">মোট ব্যালেন্স</div>
+    <div class="card-amount" id="totalBalance">৳ ০</div>
+  </div>
+  <div class="summary-card physical">
+    <div class="card-icon">💵</div>
+    <div class="card-label">ফিজিক্যাল ব্যালেন্স</div>
+    <div class="card-amount" id="physicalBalance">৳ ০</div>
+  </div>
+  <div class="summary-card loan">
+    <div class="card-icon">🤝</div>
+    <div class="card-label">লোন প্রদান</div>
+    <div class="card-amount" id="loanTotal">৳ ০</div>
+  </div>
+  <div class="summary-card expense">
+    <div class="card-icon">📉</div>
+    <div class="card-label">মোট ব্যয়</div>
+    <div class="card-amount" id="expenseTotal">৳ ০</div>
+  </div>
+</div>
+
+<!-- ACTION BUTTONS -->
+<div class="action-section">
+  <div class="section-title">লেনদেন যোগ করুন</div>
+  <div class="action-btns">
+    <div class="action-btn add-balance" onclick="openModal('balance')">
+      <div class="btn-icon">➕</div>
+      <span>ব্যালেন্স<br>যোগ</span>
+    </div>
+    <div class="action-btn add-loan" onclick="openModal('loan')">
+      <div class="btn-icon">🤝</div>
+      <span>লোন<br>প্রদান</span>
+    </div>
+    <div class="action-btn add-expense" onclick="openModal('expense')">
+      <div class="btn-icon">💸</div>
+      <span>ব্যয়<br>যোগ</span>
+    </div>
+  </div>
+</div>
+
+<!-- BACKUP / RESTORE -->
+<div class="backup-bar">
+  <button class="backup-btn export-btn" onclick="exportBackup()">
+    <span>⬇️</span> ব্যাকআপ নিন
+  </button>
+  <button class="backup-btn import-btn" onclick="document.getElementById('fileImportInput').click()">
+    <span>⬆️</span> রিস্টোর করুন
+  </button>
+  <input type="file" id="fileImportInput" accept=".json" onchange="importBackup(event)">
+</div>
+
+<!-- HISTORY -->
+<div class="history-section">
+  <div class="history-header">
+    <div class="section-title" style="margin-bottom:0">লেনদেনের ইতিহাস</div>
+    <button class="clear-btn" onclick="clearAll()">সব মুছুন</button>
+  </div>
+
+  <div class="filter-tabs">
+    <div class="filter-tab active" onclick="setFilter('all', this)">সব</div>
+    <div class="filter-tab" onclick="setFilter('balance', this)">ব্যালেন্স</div>
+    <div class="filter-tab" onclick="setFilter('loan', this)">লোন</div>
+    <div class="filter-tab" onclick="setFilter('expense', this)">ব্যয়</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="transactionList">
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>কোনো লেনদেন নেই<br>উপরের বোতাম চেপে শুরু করুন</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle"></div>
+
+    <div class="input-group">
+      <div class="input-label">পরিমাণ (টাকা) *</div>
+      <input type="number" class="input-field" id="amountInput" placeholder="০.০০" inputmode="decimal">
+    </div>
+
+    <div class="input-group">
+      <div class="input-label">নোট / বিবরণ</div>
+      <input type="text" class="input-field" id="noteInput" placeholder="কারণ বা বিবরণ লিখুন...">
+    </div>
+
+    <div class="input-group">
+      <div class="input-label">তারিখ *</div>
+      <input type="date" class="input-field" id="dateInput">
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitTransaction()">যোগ করুন</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  let transactions = JSON.parse(localStorage.getItem('amar_hisab') || '[]');
+  let currentType = '';
+  let currentFilter = 'all';
+
+  // Init date
+  const today = new Date().toISOString().split('T')[0];
+
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent =
+      now.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
+
+  function formatAmount(n) {
+    return '৳ ' + Math.abs(n).toLocaleString('en-IN');
+  }
+
+  function calcSummary() {
+    let totalIn = 0, loanOut = 0, totalExp = 0;
+
+    transactions.forEach(t => {
+      if (t.type === 'balance') totalIn += t.amount;
+      else if (t.type === 'loan') loanOut += t.amount;
+      else if (t.type === 'expense') totalExp += t.amount;
+    });
+
+    // মোট ব্যালেন্স = ব্যালেন্স যোগ - ব্যয় (লোন প্রদান প্রভাব ফেলে না)
+    // লোন দেওয়া টাকা আপনারই সম্পদ, তাই মোট ব্যালেন্স অপরিবর্তিত
+    // ফিজিক্যাল ব্যালেন্স = হাতে থাকা টাকা (লোন বাদে)
+    const totalBalance = totalIn - totalExp;
+    const physicalBalance = totalIn - loanOut - totalExp;
+
+    document.getElementById('totalBalance').textContent = formatAmount(totalBalance);
+    document.getElementById('physicalBalance').textContent = formatAmount(physicalBalance);
+    document.getElementById('loanTotal').textContent = formatAmount(loanOut);
+    document.getElementById('expenseTotal').textContent = formatAmount(totalExp);
+
+    // color for negative
+    document.getElementById('physicalBalance').style.color =
+      physicalBalance < 0 ? 'var(--red)' : 'var(--green)';
+    document.getElementById('totalBalance').style.color =
+      totalBalance < 0 ? 'var(--red)' : 'var(--accent)';
+  }
+
+  function renderList() {
+    const list = document.getElementById('transactionList');
+    let filtered = currentFilter === 'all'
+      ? transactions
+      : transactions.filter(t => t.type === currentFilter);
+
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>কোনো লেনদেন নেই<br>উপরের বোতাম চেপে শুরু করুন</p>
+      </div>`;
+      return;
+    }
+
+    const sorted = [...filtered].reverse();
+    list.innerHTML = sorted.map(t => {
+      const cfg = {
+        balance: { icon: '💰', color: 'var(--green)', label: 'ব্যালেন্স যোগ', sign: '+', bg: 'var(--green-dim)' },
+        loan:    { icon: '🤝', color: 'var(--blue)',  label: 'লোন প্রদান',   sign: '-', bg: 'var(--blue-dim)' },
+        expense: { icon: '💸', color: 'var(--red)',   label: 'ব্যয়',         sign: '-', bg: 'var(--red-dim)' },
+      }[t.type];
+
+      const dateStr = t.date ? new Date(t.date).toLocaleDateString('bn-BD', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      }) : '';
+
+      return `<div class="transaction-item" id="tx-${t.id}">
+        <div class="tx-icon" style="background:${cfg.bg}">${cfg.icon}</div>
+        <div class="tx-info">
+          <div class="tx-type" style="color:${cfg.color}">${cfg.label}</div>
+          ${t.note ? `<div class="tx-note">${t.note}</div>` : ''}
+          <div class="tx-date">${dateStr}</div>
+        </div>
+        <div class="tx-right">
+          <div class="tx-amount" style="color:${cfg.color}">${cfg.sign}${formatAmount(t.amount)}</div>
+        </div>
+        <button class="tx-delete" onclick="deleteTransaction('${t.id}')">🗑️</button>
+      </div>`;
+    }).join('');
+  }
+
+  function save() {
+    localStorage.setItem('amar_hisab', JSON.stringify(transactions));
+    calcSummary();
+    renderList();
+  }
+
+  function openModal(type) {
+    currentType = type;
+    const cfg = {
+      balance: { label: '💰 ব্যালেন্স যোগ করুন', btnClass: 'btn-balance', badgeBg: 'var(--green-dim)' },
+      loan:    { label: '🤝 লোন প্রদান করুন',    btnClass: 'btn-loan',    badgeBg: 'var(--blue-dim)' },
+      expense: { label: '💸 ব্যয় যোগ করুন',      btnClass: 'btn-expense', badgeBg: 'var(--red-dim)' },
+    }[type];
+
+    document.getElementById('modalTitle').innerHTML =
+      `<div class="title-badge" style="background:${cfg.badgeBg}">${cfg.label.split(' ')[0]}</div> ${cfg.label.slice(2)}`;
+
+    const btn = document.getElementById('submitBtn');
+    btn.className = `submit-btn ${cfg.btnClass}`;
+
+    document.getElementById('amountInput').value = '';
+    document.getElementById('noteInput').value = '';
+    document.getElementById('dateInput').value = today;
+
+    document.getElementById('modalOverlay').classList.add('active');
+    setTimeout(() => document.getElementById('amountInput').focus(), 400);
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+
+  function submitTransaction() {
+    const amount = parseFloat(document.getElementById('amountInput').value);
+    const note = document.getElementById('noteInput').value.trim();
+    const date = document.getElementById('dateInput').value;
+
+    if (!amount || amount <= 0) {
+      showToast('⚠️ সঠিক পরিমাণ দিন');
+      return;
+    }
+
+    transactions.push({
+      id: Date.now().toString(),
+      type: currentType,
+      amount,
+      note,
+      date,
+    });
+
+    save();
+    closeModal();
+    showToast('✅ সফলভাবে যোগ হয়েছে!');
+  }
+
+  function deleteTransaction(id) {
+    transactions = transactions.filter(t => t.id !== id);
+    save();
+    showToast('🗑️ মুছে ফেলা হয়েছে');
+  }
+
+  function clearAll() {
+    if (transactions.length === 0) return;
+    if (confirm('সব লেনদেন মুছে ফেলবেন?')) {
+      transactions = [];
+      save();
+      showToast('🗑️ সব মুছে ফেলা হয়েছে');
+    }
+  }
+
+  function setFilter(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderList();
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function exportBackup() {
+    if (transactions.length === 0) {
+      showToast('⚠️ কোনো তথ্য নেই ব্যাকআপের জন্য');
+      return;
+    }
+    const data = {
+      version: '1.0',
+      exportedAt: new Date().toISOString(),
+      transactions: transactions
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const dateStr = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+    a.href = url;
+    a.download = `amar-hisab-backup-${dateStr}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('✅ ব্যাকআপ ডাউনলোড হয়েছে!');
+  }
+
+  function importBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        let imported = [];
+        if (Array.isArray(data)) {
+          imported = data;
+        } else if (data.transactions && Array.isArray(data.transactions)) {
+          imported = data.transactions;
+        } else {
+          showToast('❌ ফাইলটি সঠিক ফরম্যাটে নেই');
+          return;
+        }
+        if (imported.length === 0) {
+          showToast('⚠️ ফাইলে কোনো তথ্য নেই');
+          return;
+        }
+        const merge = confirm(`${imported.length}টি লেনদেন পাওয়া গেছে।\n\nবিদ্যমান তথ্যের সাথে যোগ করতে "OK" চাপুন।\nসব মুছে নতুন করে লোড করতে "বাতিল" চাপুন।`);
+        if (merge) {
+          const existingIds = new Set(transactions.map(t => t.id));
+          const newItems = imported.filter(t => !existingIds.has(t.id));
+          transactions = [...transactions, ...newItems];
+          showToast(`✅ ${newItems.length}টি নতুন লেনদেন যোগ হয়েছে!`);
+        } else {
+          transactions = imported;
+          showToast(`✅ ${imported.length}টি লেনদেন লোড হয়েছে!`);
+        }
+        save();
+      } catch (err) {
+        showToast('❌ ফাইল পড়তে সমস্যা হয়েছে');
+      }
+      event.target.value = '';
+    };
+    reader.readAsText(file);
+  }
+
+  // Keyboard submit
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('modalOverlay').classList.contains('active')) {
+      submitTransaction();
+    }
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // INIT
+  calcSummary();
+  renderList();
+</script>
+</body>
+</html>
