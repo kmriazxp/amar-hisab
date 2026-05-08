@@ -16,11 +16,12 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;overflow-x:hidden}
 
-/* UI Components (Loading, Login, Layout) */
+/* APP LOADING */
 #appLoading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:998;flex-direction:column;gap:14px}
 .spin{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* LOGIN */
 #loginScreen{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:30px}
 .login-logo{font-size:70px;margin-bottom:16px}
 .login-title{font-size:26px;font-weight:700;margin-bottom:8px;text-align:center}
@@ -29,62 +30,148 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 .google-btn:active{transform:scale(.97)}
 .google-btn img{width:22px;height:22px}
 
+/* LOADING BAR */
 #loadingBar{height:3px;background:linear-gradient(90deg,var(--accent),var(--blue),var(--green));background-size:200%;animation:la 1.2s linear infinite;display:none}
 @keyframes la{0%{background-position:0%}100%{background-position:200%}}
 
+/* STATUS BAR */
 .status-bar{background:var(--surface);padding:10px 14px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .app-title{font-size:16px;font-weight:700}
 .user-info{display:flex;align-items:center;gap:8px}
 .user-avatar{width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);object-fit:cover;background:var(--surface2)}
 .user-name{font-size:11px;color:var(--muted);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.signout-btn{background:var(--red-dim);border:none;color:var(--red);font-size:11px;font-weight:600;padding:4px 8px;border-radius:6px;cursor:pointer}
+.signout-btn{background:var(--red-dim);border:none;color:var(--red);font-size:11px;font-weight:600;font-family:'Hind Siliguri',sans-serif;padding:4px 8px;border-radius:6px;cursor:pointer}
 
+/* NAV TABS */
 .nav-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border)}
-.nav-tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}
+.nav-tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
 .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
-/* Summary & Grid Cards */
+/* SUMMARY CARDS */
 .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 14px 8px}
 .summary-card{background:var(--surface);border-radius:var(--r);padding:14px;border:1px solid var(--border);position:relative;overflow:hidden}
+.summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.card-t::before{background:var(--accent)}.card-p::before{background:var(--green)}
+.card-l::before{background:var(--blue)}.card-e::before{background:var(--red)}
 .card-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:8px}
+.card-t .card-icon{background:var(--accent-dim)}.card-p .card-icon{background:var(--green-dim)}
+.card-l .card-icon{background:var(--blue-dim)}.card-e .card-icon{background:var(--red-dim)}
+.card-label{font-size:10px;color:var(--muted);font-weight:500;margin-bottom:3px}
 .card-amount{font-size:18px;font-weight:700}
+.card-t .card-amount{color:var(--accent)}.card-p .card-amount{color:var(--green)}
+.card-l .card-amount{color:var(--blue)}.card-e .card-amount{color:var(--red)}
 
-/* Action Buttons */
-.action-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:6px 14px 10px}
-.action-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+/* ACTION BUTTONS */
+.action-section{padding:6px 14px 10px}
+.section-title{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.action-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.action-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .2s;user-select:none}
+.action-btn:active{transform:scale(.95);opacity:.85}
+.btn-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px}
+.ab-bal .btn-icon{background:var(--green-dim)}.ab-loan .btn-icon{background:var(--blue-dim)}.ab-exp .btn-icon{background:var(--red-dim)}
+.action-btn span{font-size:11px;font-weight:600;color:var(--muted);text-align:center;line-height:1.3}
 
-/* History Items */
+/* BACKUP BAR */
+.backup-bar{display:flex;gap:8px;padding:0 14px 10px}
+.backup-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:9px 6px;font-size:12px;font-weight:600;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:all .2s}
+.backup-btn:active{transform:scale(.97)}
+.bb-export{color:var(--green);border-color:#00d68f44}.bb-import{color:var(--blue);border-color:#4d9fff44}
+
+/* HISTORY SECTION */
 .history-section{padding:0 14px 120px}
-.tx-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.tx-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.clear-btn{font-size:11px;color:var(--red);background:var(--red-dim);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-family:'Hind Siliguri',sans-serif;font-weight:600}
+.filter-tabs{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
+.filter-tab{padding:5px 12px;border-radius:50px;font-size:11.5px;font-weight:600;font-family:'Hind Siliguri',sans-serif;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);white-space:nowrap;transition:all .2s;flex-shrink:0}
+.filter-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.divider{height:1px;background:var(--border);margin:4px 0 10px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .ei{font-size:48px;margin-bottom:12px}
+.empty-state p{font-size:14px;line-height:1.6}
 
-/* Modals */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:200;display:none;align-items:flex-end}
-.modal-overlay.active{display:flex}
-.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 18px 38px;width:100%;border:1px solid var(--border)}
-.input-field{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 13px;font-size:14px;color:var(--text);margin-bottom:12px;outline:none}
-.submit-btn{width:100%;padding:13px;border-radius:var(--rs);border:none;font-size:14px;font-weight:700;cursor:pointer}
+/* TRANSACTION ITEM */
+.tx-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;animation:si .3s ease}
+@keyframes si{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.tx-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.tx-info{flex:1;min-width:0}
+.tx-type{font-size:11.5px;font-weight:600;margin-bottom:2px}
+.tx-note{font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:155px}
+.tx-date{font-size:10.5px;color:var(--muted);margin-top:2px}
+.tx-edited{font-size:10px;color:var(--orange);margin-top:1px;cursor:pointer}
+.tx-right{text-align:right;flex-shrink:0}
+.tx-amount{font-size:14px;font-weight:700}
+.tx-actions{display:flex;gap:3px;flex-shrink:0}
+.tx-btn{background:none;border:none;cursor:pointer;font-size:15px;padding:4px;border-radius:6px;transition:all .2s;color:var(--muted)}
+.tx-btn:active{background:var(--surface2)}
 
-/* Toast */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:9px 20px;font-size:13px;opacity:0;transition:0.3s;z-index:500}
+/* TRASH SECTION */
+.trash-section{padding:0 14px 120px}
+.trash-item{background:var(--surface);border:1px dashed var(--border);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;opacity:.75}
+.trash-actions{display:flex;gap:3px;flex-shrink:0}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.active{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 18px 38px;width:100%;border:1px solid var(--border);border-bottom:none;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.modal-overlay.active .modal{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.title-badge{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.input-group{margin-bottom:12px}
+.input-label{font-size:11.5px;font-weight:600;color:var(--muted);margin-bottom:5px}
+.input-field{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 13px;font-size:14px;color:var(--text);font-family:'Hind Siliguri',sans-serif;outline:none;transition:border-color .2s}
+.input-field:focus{border-color:var(--accent)}
+.input-field::placeholder{color:var(--muted)}
+.submit-btn{width:100%;padding:13px;border-radius:var(--rs);border:none;font-size:14px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;margin-top:4px;transition:all .2s}
+.submit-btn:active{transform:scale(.97)}
+.btn-balance{background:var(--green);color:#000}.btn-loan{background:var(--blue);color:#000}.btn-expense{background:var(--red);color:#fff}.btn-save{background:var(--accent);color:#fff}
+
+/* CONFIRM MODAL */
+#confirmModal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+#confirmModal.active{opacity:1;pointer-events:all}
+.confirm-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;width:100%;max-width:320px;animation:si .3s ease}
+.confirm-icon{font-size:42px;text-align:center;margin-bottom:12px}
+.confirm-title{font-size:16px;font-weight:700;text-align:center;margin-bottom:8px}
+.confirm-msg{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:20px}
+.confirm-btns{display:flex;gap:10px}
+.confirm-btn{flex:1;padding:11px;border:none;border-radius:var(--rs);font-size:13px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:all .2s}
+.cb-cancel{background:var(--surface2);color:var(--muted)}.cb-ok{background:var(--red);color:#fff}.cb-ok-accent{background:var(--accent);color:#fff}
+
+/* EDIT HISTORY MODAL */
+#historyModal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:250;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+#historyModal.active{opacity:1;pointer-events:all}
+.history-modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 18px 38px;width:100%;border:1px solid var(--border);border-bottom:none;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);max-height:75vh;overflow-y:auto}
+#historyModal.active .history-modal-box{transform:translateY(0)}
+.edit-history-item{background:var(--surface2);border-radius:var(--rs);padding:11px 13px;margin-bottom:8px;border-left:3px solid var(--accent)}
+.eh-time{font-size:10px;color:var(--muted);margin-bottom:5px}
+.eh-change{font-size:12px;line-height:1.8;color:var(--text)}
+.eh-change span{color:var(--muted)}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:9px 20px;font-size:13px;font-weight:600;color:var(--text);opacity:0;transition:all .3s;z-index:500;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#fileImportInput{display:none}
 </style>
 </head>
 <body>
 
-<div id="appLoading"><div class="spin"></div><div style="font-size:13px;color:var(--muted)">লোড হচ্ছে...</div></div>
+<div id="appLoading">
+  <div class="spin"></div>
+  <div style="font-size:13px;color:var(--muted)">লোড হচ্ছে...</div>
+</div>
 
 <div id="loginScreen">
   <div class="login-logo">💰</div>
   <div class="login-title">আমার হিসাব</div>
-  <div class="login-sub">নিরাপদে আপনার আয়-ব্যয় ট্র্যাকিং করুন</div>
+  <div class="login-sub">ব্যক্তিগত আয়-ব্যয় ট্র্যাকার<br>আপনার Google অ্যাকাউন্ট দিয়ে সাইন ইন করুন</div>
   <button class="google-btn" onclick="signInWithGoogle()">
     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
-    Google দিয়ে সাইন ইন
+    Google দিয়ে সাইন ইন
   </button>
 </div>
 
 <div id="mainApp" style="display:none">
+
   <div class="status-bar">
     <div class="app-title">💰 আমার হিসাব</div>
     <div class="user-info">
@@ -102,33 +189,85 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 
   <div id="tab-main">
     <div class="summary-grid">
-      <div class="summary-card"><div class="card-amount" id="totalBalance">৳ ০</div><div style="font-size:10px;color:var(--muted)">মোট ব্যালেন্স</div></div>
-      <div class="summary-card"><div class="card-amount" id="physicalBalance" style="color:var(--green)">৳ ০</div><div style="font-size:10px;color:var(--muted)">হাতে নগদ</div></div>
+      <div class="summary-card card-t"><div class="card-icon">🏦</div><div class="card-label">মোট ব্যালেন্স</div><div class="card-amount" id="totalBalance">৳ ০</div></div>
+      <div class="summary-card card-p"><div class="card-icon">💵</div><div class="card-label">ফিজিক্যাল ব্যালেন্স</div><div class="card-amount" id="physicalBalance">৳ ০</div></div>
+      <div class="summary-card card-l"><div class="card-icon">🤝</div><div class="card-label">লোন প্রদান</div><div class="card-amount" id="loanTotal">৳ ০</div></div>
+      <div class="summary-card card-e"><div class="card-icon">📉</div><div class="card-label">মোট ব্যয়</div><div class="card-amount" id="expenseTotal">৳ ০</div></div>
     </div>
 
-    <div class="action-btns">
-      <div class="action-btn" onclick="openModal('balance')"><span>➕ ব্যালেন্স</span></div>
-      <div class="action-btn" onclick="openModal('loan')"><span>🤝 লোন</span></div>
-      <div class="action-btn" onclick="openModal('expense')"><span>💸 ব্যয়</span></div>
+    <div class="action-section">
+      <div class="section-title">লেনদেন যোগ করুন</div>
+      <div class="action-btns">
+        <div class="action-btn ab-bal" onclick="openModal('balance')"><div class="btn-icon">➕</div><span>ব্যালেন্স<br>যোগ</span></div>
+        <div class="action-btn ab-loan" onclick="openModal('loan')"><div class="btn-icon">🤝</div><span>লোন<br>প্রদান</span></div>
+        <div class="action-btn ab-exp" onclick="openModal('expense')"><div class="btn-icon">💸</div><span>ব্যয়<br>যোগ</span></div>
+      </div>
+    </div>
+
+    <div class="backup-bar">
+      <button class="backup-btn bb-export" onclick="exportBackup()">⬇️ ব্যাকআপ</button>
+      <button class="backup-btn bb-import" onclick="document.getElementById('fileImportInput').click()">⬆️ রিস্টোর</button>
+      <input type="file" id="fileImportInput" accept=".json" onchange="importBackup(event)">
     </div>
 
     <div class="history-section">
+      <div class="history-header">
+        <div class="section-title" style="margin-bottom:0">লেনদেনের ইতিহাস</div>
+        <button class="clear-btn" onclick="clearAll()">সব ট্র্যাশে</button>
+      </div>
+      <div class="filter-tabs">
+        <div class="filter-tab active" onclick="setFilter('all',this)">সব</div>
+        <div class="filter-tab" onclick="setFilter('balance',this)">ব্যালেন্স</div>
+        <div class="filter-tab" onclick="setFilter('loan',this)">লোন</div>
+        <div class="filter-tab" onclick="setFilter('expense',this)">ব্যয়</div>
+      </div>
+      <div class="divider"></div>
       <div id="transactionList"></div>
     </div>
   </div>
 
   <div id="tab-trash" style="display:none">
-    <div id="trashList" class="history-section"></div>
+    <div class="trash-section">
+      <div class="history-header" style="margin-top:14px">
+        <div class="section-title" style="margin-bottom:0">🗑️ ট্র্যাশ</div>
+        <button class="clear-btn" onclick="emptyTrash()">সব মুছুন</button>
+      </div>
+      <div class="divider"></div>
+      <div id="trashList"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="input-group"><div class="input-label">পরিমাণ (টাকা) *</div><input type="number" class="input-field" id="amountInput" placeholder="০.০০" inputmode="decimal"></div>
+    <div class="input-group"><div class="input-label">নোট / বিবরণ</div><input type="text" class="input-field" id="noteInput" placeholder="কারণ বা বিবরণ লিখুন..."></div>
+    <div class="input-group"><div class="input-label">তারিখ *</div><input type="date" class="input-field" id="dateInput"></div>
+    <div class="input-group" id="editReasonGroup" style="display:none"><div class="input-label">সম্পাদনার কারণ (ঐচ্ছিক)</div><input type="text" class="input-field" id="editReasonInput" placeholder="কেন পরিবর্তন করছেন?"></div>
+    <button class="submit-btn btn-balance" id="submitBtn" onclick="submitTransaction()">যোগ করুন</button>
   </div>
 </div>
 
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
-  <div class="modal">
-    <h3 id="modalTitle" style="margin-bottom:15px"></h3>
-    <input type="number" class="input-field" id="amountInput" placeholder="পরিমাণ (টাকা)" inputmode="decimal">
-    <input type="text" class="input-field" id="noteInput" placeholder="বিবরণ (ঐচ্ছিক)">
-    <input type="date" class="input-field" id="dateInput">
-    <button class="submit-btn" id="submitBtn" onclick="submitTransaction()" style="background:var(--accent);color:#fff">সেভ করুন</button>
+<div id="confirmModal">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirmIcon">🗑️</div>
+    <div class="confirm-title" id="confirmTitle">নিশ্চিত করুন</div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-btns">
+      <button class="confirm-btn cb-cancel" onclick="closeConfirm()">বাতিল</button>
+      <button class="confirm-btn cb-ok" id="confirmOkBtn">হ্যাঁ</button>
+    </div>
+  </div>
+</div>
+
+<div id="historyModal" onclick="closeHistoryOutside(event)">
+  <div class="history-modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="font-size:15px">📋 সম্পাদনার ইতিহাস</div>
+    <div id="historyList"></div>
   </div>
 </div>
 
@@ -139,137 +278,306 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase কনফিগারেশন
+// --- CONFIG ---
 const firebaseConfig = {
-  apiKey: "AIzaSyCNiFP5yYdur71LzTz09PLAwkRhkwL_xTg",
-  authDomain: "amar-hisab-ac1db.firebaseapp.com",
-  projectId: "amar-hisab-ac1db",
-  storageBucket: "amar-hisab-ac1db.firebasestorage.app",
-  messagingSenderId: "1061997143103",
-  appId: "1:1061997143103:web:52b3e76a03f7b7ff29048a"
+  apiKey:"AIzaSyCNiFP5yYdur71LzTz09PLAwkRhkwL_xTg",
+  authDomain:"amar-hisab-ac1db.firebaseapp.com",
+  projectId:"amar-hisab-ac1db",
+  storageBucket:"amar-hisab-ac1db.firebasestorage.app",
+  messagingSenderId:"1061997143103",
+  appId:"1:1061997143103:web:52b3e76a03f7b7ff29048a"
 };
-
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-// সেশন পারসিস্টেন্স সেটআপ (LOCAL মানে সেশন স্থায়ী হবে)
+// লগইন সেশন স্থায়ী করার জন্য
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-let currentUser = null;
-let transactions = [];
+let currentUser=null, transactions=[], trashItems=[];
+let currentType='', currentFilter='all', editingId=null;
+let txUnsub=null, trashUnsub=null;
+const today = new Date().toISOString().split('T')[0];
 
-// অথেনটিকেশন চেক
+// --- AUTH HANDLER ---
 auth.onAuthStateChanged(user => {
-  const loading = document.getElementById('appLoading');
+  const loadingOverlay = document.getElementById('appLoading');
+  const loginScreen = document.getElementById('loginScreen');
+  const mainApp = document.getElementById('mainApp');
+
   if (user) {
     currentUser = user;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
+    loadingOverlay.style.display = 'none';
+    loginScreen.style.display = 'none';
+    mainApp.style.display = 'block';
     document.getElementById('userAvatar').src = user.photoURL || '';
-    document.getElementById('userName').textContent = user.displayName;
-    loading.style.display = 'none';
-    startDataListener();
+    document.getElementById('userName').textContent = user.displayName || user.email;
+    startListeners();
   } else {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('mainApp').style.display = 'none';
-    loading.style.display = 'none';
+    loadingOverlay.style.display = 'none';
+    loginScreen.style.display = 'flex';
+    mainApp.style.display = 'none';
+    if (txUnsub) txUnsub();
+    if (trashUnsub) trashUnsub();
   }
 });
 
-// পপ-আপ লগইন পদ্ধতি (সবচেয়ে স্টেবল)
 function signInWithGoogle() {
   document.getElementById('appLoading').style.display = 'flex';
-  auth.signInWithPopup(provider)
-    .catch(err => {
-      document.getElementById('appLoading').style.display = 'none';
-      console.error(err);
-      alert("লগইন সমস্যা: " + err.message);
-    });
+  // পপ-আপ ব্যবহার করা হয়েছে ব্রাউজার রিডাইরেক্ট ঝামেলা এড়াতে
+  auth.signInWithPopup(provider).catch(err => {
+    document.getElementById('appLoading').style.display = 'none';
+    console.error(err);
+    alert('লগইন ব্যর্থ: ' + err.message);
+  });
 }
 
-function doSignOut() {
-  auth.signOut().then(() => location.reload());
+function doSignOut(){
+  showConfirm('🚪','লগআউট','আপনি কি সাইন আউট করতে চান?','হ্যাঁ','cb-ok', () => {
+    auth.signOut().then(() => location.reload());
+  });
 }
 
-// ডেটা লিসেনার
-function startDataListener() {
-  db.collection('users').doc(currentUser.uid).collection('transactions')
-    .orderBy('createdAt', 'desc')
-    .onSnapshot(snap => {
-      transactions = snap.docs.map(d => ({id: d.id, ...d.data()}));
-      renderUI();
-    });
-}
+// --- DATABASE HELPERS ---
+function txCol(){ return db.collection('users').doc(currentUser.uid).collection('transactions'); }
+function trashCol(){ return db.collection('users').doc(currentUser.uid).collection('trash'); }
 
-function renderUI() {
-  let bal=0, phy=0, loan=0, exp=0;
-  const list = document.getElementById('transactionList');
-  list.innerHTML = '';
-
-  transactions.forEach(t => {
-    if(t.type==='balance') { bal += t.amount; phy += t.amount; }
-    if(t.type==='loan') { loan += t.amount; phy -= t.amount; }
-    if(t.type==='expense') { exp += t.amount; phy -= t.amount; }
-
-    list.innerHTML += `
-      <div class="tx-item">
-        <div class="tx-icon" style="background:var(--surface2)">${t.type==='balance'?'💰':t.type==='loan'?'🤝':'💸'}</div>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:600">${t.note || 'বিবরণ নেই'}</div>
-          <div style="font-size:10px;color:var(--muted)">${t.date}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-weight:700; color:${t.type==='balance'?'var(--green)':'var(--red)'}">৳ ${t.amount}</div>
-        </div>
-      </div>`;
+// --- LISTENERS ---
+function startListeners(){
+  setLoading(true);
+  txUnsub = txCol().orderBy('createdAt','desc').onSnapshot(snap=>{
+    transactions=snap.docs.map(d=>({id:d.id,...d.data()}));
+    calcSummary(); renderList(); setLoading(false);
+  },err=>{
+    console.warn('Index error or listener fail, retrying...', err);
+    setLoading(false);
   });
 
-  document.getElementById('totalBalance').textContent = '৳ ' + bal;
-  document.getElementById('physicalBalance').textContent = '৳ ' + phy;
+  trashUnsub = trashCol().orderBy('deletedAt','desc').onSnapshot(snap=>{
+    trashItems=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderTrash();
+  });
 }
 
-// ট্রানজ্যাকশন সাবমিট
-let currentType = 'balance';
-function openModal(type) {
-  currentType = type;
-  document.getElementById('modalTitle').textContent = type==='balance'?'ব্যালেন্স যোগ':'লোন বা ব্যয়';
-  document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+function setLoading(on){ document.getElementById('loadingBar').style.display=on?'block':'none'; }
+
+// --- LOGIC: CALC & RENDER ---
+function calcSummary(){
+  let totalIn=0,loanOut=0,totalExp=0;
+  transactions.forEach(t=>{
+    if(t.type==='balance') totalIn+=t.amount;
+    else if(t.type==='loan') loanOut+=t.amount;
+    else if(t.type==='expense') totalExp+=t.amount;
+  });
+  const total=totalIn-totalExp, physical=totalIn-loanOut-totalExp;
+  document.getElementById('totalBalance').textContent=fmt(total);
+  document.getElementById('physicalBalance').textContent=fmt(physical);
+  document.getElementById('loanTotal').textContent=fmt(loanOut);
+  document.getElementById('expenseTotal').textContent=fmt(totalExp);
+  document.getElementById('physicalBalance').style.color=physical<0?'var(--red)':'var(--green)';
+  document.getElementById('totalBalance').style.color=total<0?'var(--red)':'var(--accent)';
+}
+function fmt(n){ return '৳ '+Math.abs(n).toLocaleString('en-IN'); }
+
+function renderList(){
+  const list=document.getElementById('transactionList');
+  let filtered=currentFilter==='all'?transactions:transactions.filter(t=>t.type===currentFilter);
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty-state"><div class="ei">📋</div><p>কোনো লেনদেন নেই</p></div>`;
+    return;
+  }
+  list.innerHTML=filtered.map(t=>{
+    const cfg={
+      balance:{icon:'💰',color:'var(--green)',label:'ব্যালেন্স যোগ',sign:'+',bg:'var(--green-dim)'},
+      loan:{icon:'🤝',color:'var(--blue)',label:'লোন প্রদান',sign:'-',bg:'var(--blue-dim)'},
+      expense:{icon:'💸',color:'var(--red)',label:'ব্যয়',sign:'-',bg:'var(--red-dim)'},
+    }[t.type];
+    const dateStr=t.date?new Date(t.date).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'}):'';
+    const editCount=t.editHistory?.length||0;
+    const editedTag=editCount?`<div class="tx-edited" onclick="showEditHistory('${t.id}')">✏️ ${editCount}বার সম্পাদিত</div>`:'';
+    return `<div class="tx-item">
+      <div class="tx-icon" style="background:${cfg.bg}">${cfg.icon}</div>
+      <div class="tx-info">
+        <div class="tx-type" style="color:${cfg.color}">${cfg.label}</div>
+        ${t.note?`<div class="tx-note">${t.note}</div>`:''}
+        <div class="tx-date">${dateStr}</div>
+        ${editedTag}
+      </div>
+      <div class="tx-right"><div class="tx-amount" style="color:${cfg.color}">${cfg.sign}${fmt(t.amount)}</div></div>
+      <div class="tx-actions">
+        <button class="tx-btn" onclick="openEdit('${t.id}')">✏️</button>
+        <button class="tx-btn" onclick="confirmDelete('${t.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTrash(){
+  const list=document.getElementById('trashList');
+  if(!trashItems.length){
+    list.innerHTML=`<div class="empty-state"><div class="ei">🗑️</div><p>ট্র্যাশ খালি</p></div>`;
+    return;
+  }
+  list.innerHTML=trashItems.map(t=>{
+    const cfg={
+      balance:{icon:'💰',color:'var(--green)',label:'ব্যালেন্স যোগ',sign:'+',bg:'var(--green-dim)'},
+      loan:{icon:'🤝',color:'var(--blue)',label:'লোন প্রদান',sign:'-',bg:'var(--blue-dim)'},
+      expense:{icon:'💸',color:'var(--red)',label:'ব্যয়',sign:'-',bg:'var(--red-dim)'},
+    }[t.type];
+    return `<div class="trash-item">
+      <div class="tx-icon" style="background:${cfg.bg};opacity:.6">${cfg.icon}</div>
+      <div class="tx-info"><div class="tx-type" style="color:${cfg.color}">${cfg.label}</div><div class="tx-note">${t.note||''}</div></div>
+      <div class="tx-right"><div class="tx-amount" style="color:${cfg.color}">${fmt(t.amount)}</div></div>
+      <div class="trash-actions">
+        <button class="tx-btn" onclick="restoreTrash('${t.id}')">↩️</button>
+        <button class="tx-btn" onclick="permanentDelete('${t.id}')">❌</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// --- TAB SWITCH ---
+function switchTab(tab,el){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-main').style.display=tab==='main'?'block':'none';
+  document.getElementById('tab-trash').style.display=tab==='trash'?'block':'none';
+}
+
+// --- MODAL OPS ---
+function openModal(type){
+  editingId=null; currentType=type;
+  document.getElementById('submitBtn').textContent='যোগ করুন';
+  document.getElementById('amountInput').value='';
+  document.getElementById('noteInput').value='';
+  document.getElementById('dateInput').value=today;
+  document.getElementById('editReasonGroup').style.display='none';
   document.getElementById('modalOverlay').classList.add('active');
 }
 
-function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+function openEdit(id){
+  const t=transactions.find(x=>x.id===id); if(!t) return;
+  editingId=id; currentType=t.type;
+  document.getElementById('submitBtn').textContent='আপডেট করুন';
+  document.getElementById('amountInput').value=t.amount;
+  document.getElementById('noteInput').value=t.note||'';
+  document.getElementById('dateInput').value=t.date||today;
+  document.getElementById('editReasonGroup').style.display='block';
+  document.getElementById('modalOverlay').classList.add('active');
+}
 
-async function submitTransaction() {
-  const amount = parseFloat(document.getElementById('amountInput').value);
-  const note = document.getElementById('noteInput').value;
-  const date = document.getElementById('dateInput').value;
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('active'); }
+function closeModalOutside(e){ if(e.target===document.getElementById('modalOverlay')) closeModal(); }
 
-  if(!amount) return alert("পরিমাণ দিন");
+async function submitTransaction(){
+  const amount=parseFloat(document.getElementById('amountInput').value);
+  const note=document.getElementById('noteInput').value.trim();
+  const date=document.getElementById('dateInput').value;
+  if(!amount) { showToast('⚠️ পরিমাণ দিন'); return; }
 
-  await db.collection('users').doc(currentUser.uid).collection('transactions').add({
-    type: currentType,
-    amount: amount,
-    note: note,
-    date: date,
-    createdAt: Date.now()
+  try{
+    if(editingId){
+      const old=transactions.find(x=>x.id===editingId);
+      const reason=document.getElementById('editReasonInput').value.trim();
+      const histEntry={changedAt:Date.now(),reason:reason||'এডিট',before:{amount:old.amount,note:old.note||'',date:old.date||''}};
+      await txCol().doc(editingId).update({amount,note,date,editHistory:firebase.firestore.FieldValue.arrayUnion(histEntry),updatedAt:Date.now()});
+    } else {
+      await txCol().add({type:currentType,amount,note,date,createdAt:Date.now(),editHistory:[]});
+    }
+    closeModal(); showToast('✅ সেভ হয়েছে');
+  } catch(e){ showToast('❌ এরর: '+e.message); }
+}
+
+// --- DELETE & RESTORE ---
+async function confirmDelete(id){
+  const t=transactions.find(x=>x.id===id); if(!t) return;
+  const data={...t,deletedAt:Date.now()}; delete data.id;
+  await trashCol().add(data);
+  await txCol().doc(id).delete();
+  showToast('🗑️ ট্র্যাশে পাঠানো হয়েছে');
+}
+
+async function restoreTrash(id){
+  const t=trashItems.find(x=>x.id===id); if(!t) return;
+  const data={...t}; delete data.id; delete data.deletedAt;
+  await txCol().add(data);
+  await trashCol().doc(id).delete();
+}
+
+async function permanentDelete(id){
+  showConfirm('❌','মুছে ফেলবেন?','চিরতরে ডিলিট হয়ে যাবে','হ্যাঁ','cb-ok', async()=>{
+    await trashCol().doc(id).delete();
   });
-
-  closeModal();
-  showToast("সফলভাবে সেভ হয়েছে");
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+async function clearAll(){
+  if(!transactions.length) return;
+  showConfirm('🗑️','সব ট্র্যাশে?','সবগুলো ডিলিট হবে','হ্যাঁ','cb-ok', async()=>{
+    const b1=db.batch(), b2=db.batch();
+    transactions.forEach(t=>{ const d={...t,deletedAt:Date.now()}; delete d.id; b1.set(trashCol().doc(),d); b2.delete(txCol().doc(t.id)); });
+    await b1.commit(); await b2.commit();
+  });
 }
 
-function switchTab(tab, el) {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  // ট্যাব লজিক এখানে হবে
+async function emptyTrash(){
+  showConfirm('❌','ট্র্যাশ খালি?','সব চিরতরে মুছে যাবে','হ্যাঁ','cb-ok', async()=>{
+    const b=db.batch(); trashItems.forEach(t=>b.delete(trashCol().doc(t.id))); await b.commit();
+  });
+}
+
+// --- BACKUP ---
+function exportBackup(){
+  const data={transactions};
+  const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='hisab_backup.json'; a.click();
+}
+
+function importBackup(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const data=JSON.parse(ev.target.result);
+    const list=data.transactions||[];
+    const b=db.batch();
+    list.forEach(t=>{ const r=txCol().doc(); b.set(r,{...t,createdAt:t.createdAt||Date.now()}); });
+    await b.commit(); showToast('✅ রিস্টোর সফল');
+  };
+  reader.readAsText(file);
+}
+
+// --- UTILS ---
+function showEditHistory(id){
+  const t=transactions.find(x=>x.id===id);
+  const list=document.getElementById('historyList');
+  list.innerHTML=t.editHistory.map(h=>`<div class="edit-history-item"><div class="eh-time">${new Date(h.changedAt).toLocaleString()}</div><div class="eh-change">কারণ: ${h.reason}</div></div>`).join('');
+  document.getElementById('historyModal').classList.add('active');
+}
+function closeHistoryOutside(e){ if(e.target===document.getElementById('historyModal')) document.getElementById('historyModal').classList.remove('active'); }
+
+function showConfirm(icon,title,msg,okText,okClass,cb){
+  document.getElementById('confirmIcon').textContent=icon;
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  const btn=document.getElementById('confirmOkBtn');
+  btn.textContent=okText; btn.className=`confirm-btn ${okClass}`;
+  btn.onclick=()=>{ closeConfirm(); cb(); };
+  document.getElementById('confirmModal').classList.add('active');
+}
+function closeConfirm(){ document.getElementById('confirmModal').classList.remove('active'); }
+
+function setFilter(f,el){
+  currentFilter=f;
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); renderList();
+}
+
+function showToast(m){
+  const t=document.getElementById('toast');
+  t.textContent=m; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
 }
 </script>
 </body>
