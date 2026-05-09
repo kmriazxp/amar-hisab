@@ -284,10 +284,7 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 </div>
 
 <div class="toast" id="toast"></div>
-
-<!-- jsPDF CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<iframe id="printFrame" style="display:none"></iframe>
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -636,21 +633,17 @@ function setFilter(f,el){
   el.classList.add('active'); renderList();
 }
 
-// ── PDF STATEMENT ──
+// ── PDF STATEMENT (iframe print - বাংলা সাপোর্ট) ──
 function downloadPDF(){
   const filtered=getFilteredList();
   if(!filtered.length){ showToast('⚠️ দেখানোর মতো তথ্য নেই'); return; }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
 
   const monthVal=document.getElementById('monthSelect').value;
   const monthLabel=monthVal==='all'?'সব মাস':document.getElementById('monthSelect').selectedOptions[0].text;
   const typeLabel={all:'সব',balance:'ব্যালেন্স',loan:'লোন',expense:'ব্যয়'}[currentFilter];
   const userName=currentUser?.displayName||currentUser?.email||'';
-  const printDate=new Date().toLocaleDateString('en-GB');
+  const printDate=new Date().toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'});
 
-  // হিসাব
   let totalIn=0,loanOut=0,totalExp=0;
   filtered.forEach(t=>{
     if(t.type==='balance') totalIn+=t.amount;
@@ -659,87 +652,105 @@ function downloadPDF(){
   });
   const total=totalIn-totalExp, physical=totalIn-loanOut-totalExp;
 
-  const pageW=doc.internal.pageSize.getWidth();
-  let y=15;
-
-  // ── হেডার ──
-  doc.setFillColor(111,66,193);
-  doc.rect(0,0,pageW,28,'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(16); doc.setFont('helvetica','bold');
-  doc.text('Amar Hisab - Statement', pageW/2, 12, {align:'center'});
-  doc.setFontSize(9); doc.setFont('helvetica','normal');
-  doc.text(`User: ${userName}   |   Date: ${printDate}`, pageW/2, 20, {align:'center'});
-  doc.text(`Period: ${monthLabel}   |   Type: ${typeLabel}   |   Entries: ${filtered.length}`, pageW/2, 26, {align:'center'});
-  y=36;
-
-  // ── সারাংশ বক্স ──
-  const cards=[
-    {label:'Total Balance', val:fmt(total), color:total<0?[220,53,69]:[111,66,193]},
-    {label:'Physical Balance', val:fmt(physical), color:physical<0?[220,53,69]:[25,135,84]},
-    {label:'Loan Given', val:fmt(loanOut), color:[13,110,253]},
-    {label:'Total Expense', val:fmt(totalExp), color:[220,53,69]},
-  ];
-  const cw=(pageW-20)/4, ch=18;
-  cards.forEach((c,i)=>{
-    const cx=10+i*cw;
-    doc.setFillColor(248,249,250);
-    doc.roundedRect(cx,y,cw-2,ch,3,3,'F');
-    doc.setDrawColor(220,220,220);
-    doc.roundedRect(cx,y,cw-2,ch,3,3,'S');
-    doc.setFontSize(7); doc.setTextColor(100,100,100); doc.setFont('helvetica','normal');
-    doc.text(c.label, cx+(cw-2)/2, y+6, {align:'center'});
-    doc.setFontSize(10); doc.setFont('helvetica','bold');
-    doc.setTextColor(...c.color);
-    doc.text(c.val, cx+(cw-2)/2, y+14, {align:'center'});
-  });
-  y+=ch+8;
-
-  // ── টেবিল ──
   const rows=filtered.map(t=>{
-    const labels={balance:'Balance +',loan:'Loan -',expense:'Expense -'};
-    const sign={balance:'+',loan:'-',expense:'-'}[t.type];
-    const dateStr=t.date?new Date(t.date).toLocaleDateString('en-GB'):'';
-    return [
-      dateStr,
-      labels[t.type],
-      t.note||'—',
-      sign+fmt(t.amount)
-    ];
-  });
+    const cfg={
+      balance:{label:'ব্যালেন্স যোগ',sign:'+',color:'#198754'},
+      loan:{label:'লোন প্রদান',sign:'-',color:'#0d6efd'},
+      expense:{label:'ব্যয়',sign:'-',color:'#dc3545'}
+    }[t.type];
+    const dateStr=t.date?new Date(t.date).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'}):'';
+    return `<tr>
+      <td>${dateStr}</td>
+      <td style="color:${cfg.color};font-weight:600">${cfg.label}</td>
+      <td style="color:#555">${t.note||'—'}</td>
+      <td style="color:${cfg.color};font-weight:700;text-align:right">${cfg.sign}${fmt(t.amount)}</td>
+    </tr>`;
+  }).join('');
 
-  doc.autoTable({
-    startY: y,
-    head: [['তারিখ / Date','ধরন / Type','নোট / Note','পরিমাণ / Amount']],
-    body: rows,
-    styles:{ font:'helvetica', fontSize:9, cellPadding:3 },
-    headStyles:{ fillColor:[111,66,193], textColor:255, fontStyle:'bold', fontSize:9 },
-    alternateRowStyles:{ fillColor:[248,249,250] },
-    columnStyles:{
-      0:{cellWidth:28},
-      1:{cellWidth:30},
-      2:{cellWidth:'auto'},
-      3:{cellWidth:32, halign:'right', fontStyle:'bold'}
-    },
-    didParseCell: (data)=>{
-      if(data.section==='body' && data.column.index===3){
-        const txt=data.cell.raw||'';
-        if(txt.startsWith('+')) data.cell.styles.textColor=[25,135,84];
-        else if(txt.startsWith('-')) data.cell.styles.textColor=[220,53,69];
-      }
-    },
-    margin:{left:10,right:10},
-  });
+  const html=`<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Hind Siliguri',sans-serif;background:#fff;color:#212529;padding:24px;font-size:13px}
+  .header{background:#6f42c1;color:#fff;border-radius:12px;padding:18px;text-align:center;margin-bottom:18px}
+  .header h1{font-size:20px;font-weight:700;margin-bottom:6px}
+  .header p{font-size:12px;opacity:.9;line-height:1.7}
+  .summary{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:18px}
+  .s-card{border:1px solid #dee2e6;border-radius:10px;padding:12px;text-align:center;background:#f8f9fa}
+  .s-label{font-size:10px;color:#666;margin-bottom:5px}
+  .s-val{font-size:15px;font-weight:700}
+  table{width:100%;border-collapse:collapse;margin-bottom:16px}
+  thead tr{background:#6f42c1;color:#fff}
+  thead th{padding:9px 10px;text-align:left;font-size:12px;font-weight:600}
+  thead th:last-child{text-align:right}
+  tbody tr:nth-child(even){background:#f8f9fa}
+  tbody td{padding:8px 10px;border-bottom:1px solid #eee;font-size:12px;vertical-align:middle}
+  tbody td:last-child{text-align:right}
+  .footer{text-align:center;font-size:11px;color:#aaa;padding-top:12px;border-top:1px solid #eee}
+  @media print{
+    body{padding:10px}
+    @page{margin:10mm}
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>💰 আমার হিসাব — স্টেটমেন্ট</h1>
+  <p>ব্যবহারকারী: ${userName}<br>
+  সময়কাল: ${monthLabel} &nbsp;|&nbsp; ধরন: ${typeLabel} &nbsp;|&nbsp; মোট: ${filtered.length}টি এন্ট্রি<br>
+  তৈরি: ${printDate}</p>
+</div>
 
-  // ── ফুটার ──
-  const finalY=doc.lastAutoTable.finalY+8;
-  doc.setFontSize(8); doc.setTextColor(180,180,180); doc.setFont('helvetica','normal');
-  doc.text(`Generated by Amar Hisab App | Total ${filtered.length} transactions`, pageW/2, finalY, {align:'center'});
+<div class="summary">
+  <div class="s-card">
+    <div class="s-label">মোট ব্যালেন্স</div>
+    <div class="s-val" style="color:${total<0?'#dc3545':'#6f42c1'}">${fmt(total)}</div>
+  </div>
+  <div class="s-card">
+    <div class="s-label">ফিজিক্যাল ব্যালেন্স</div>
+    <div class="s-val" style="color:${physical<0?'#dc3545':'#198754'}">${fmt(physical)}</div>
+  </div>
+  <div class="s-card">
+    <div class="s-label">লোন প্রদান</div>
+    <div class="s-val" style="color:#0d6efd">${fmt(loanOut)}</div>
+  </div>
+  <div class="s-card">
+    <div class="s-label">মোট ব্যয়</div>
+    <div class="s-val" style="color:#dc3545">${fmt(totalExp)}</div>
+  </div>
+</div>
 
-  // ডাউনলোড
-  const filename=`amar-hisab-${monthVal==='all'?'all':monthVal}-${today}.pdf`;
-  doc.save(filename);
-  showToast('✅ PDF ডাউনলোড হচ্ছে!');
+<table>
+  <thead>
+    <tr>
+      <th>তারিখ</th>
+      <th>ধরন</th>
+      <th>নোট / বিবরণ</th>
+      <th style="text-align:right">পরিমাণ</th>
+    </tr>
+  </thead>
+  <tbody>${rows}</tbody>
+</table>
+
+<div class="footer">আমার হিসাব অ্যাপ &nbsp;·&nbsp; মোট ${filtered.length}টি লেনদেন</div>
+</body>
+</html>`;
+
+  // iframe দিয়ে print করা — popup block হয় না
+  const iframe=document.getElementById('printFrame');
+  iframe.style.display='none';
+  const doc=iframe.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
+
+  // ফন্ট লোড হওয়ার জন্য একটু অপেক্ষা
+  setTimeout(()=>{
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+    showToast('📄 Print/Save করুন → Save as PDF');
+  }, 800);
 }
 
 function showToast(m){
