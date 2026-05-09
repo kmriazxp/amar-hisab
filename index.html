@@ -139,9 +139,33 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 .pdf-btn{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);padding:9px 14px;font-size:12px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .pdf-btn:active{opacity:.85;transform:scale(.97)}
 
+/* LOAN REPAYMENT */
+.loan-repay-bar{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)}
+.loan-progress-wrap{flex:1;margin-right:10px}
+.loan-progress-label{font-size:10px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between}
+.loan-progress-bg{height:5px;background:var(--bg);border-radius:10px;overflow:hidden}
+.loan-progress-fill{height:100%;border-radius:10px;background:var(--blue);transition:width .4s}
+.loan-progress-fill.done{background:var(--green)}
+.repay-btn{background:var(--green-dim);border:1px solid var(--green);color:var(--green);font-size:11px;font-weight:700;font-family:'Hind Siliguri',sans-serif;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.loan-paid-badge{font-size:10px;color:var(--green);font-weight:700;background:var(--green-dim);padding:3px 8px;border-radius:6px}
+
+/* REPAYMENT MODAL */
+#repayModal{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:250;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+#repayModal.active{opacity:1;pointer-events:all}
+#repayModal .modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;border-top:1px solid var(--border);transform:translateY(100%);transition:transform .3s ease-out}
+#repayModal.active .modal{transform:translateY(0)}
+.repay-summary{background:var(--surface2);border-radius:var(--rs);padding:12px 14px;margin-bottom:16px}
+.repay-summary-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.repay-summary-row:last-child{margin-bottom:0;font-weight:700;border-top:1px solid var(--border);padding-top:6px;margin-top:6px}
+.btn-repay{background:var(--green);color:#fff}
+
+/* REPAY HISTORY */
+.repay-history-item{background:var(--surface2);border-radius:8px;padding:9px 12px;margin-bottom:6px;border-left:3px solid var(--green);display:flex;justify-content:space-between;align-items:center}
+.repay-history-info{font-size:11px;color:var(--muted)}
+.repay-history-amount{font-size:13px;font-weight:700;color:var(--green)}
+
 /* TRASH SECTION */
 .trash-section{padding:0 14px 120px}
-
 #fileImportInput{display:none}
 </style>
 </head>
@@ -183,7 +207,7 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
     <div class="summary-grid">
       <div class="summary-card card-t"><div class="card-icon">🏦</div><div class="card-label">মোট ব্যালেন্স</div><div class="card-amount" id="totalBalance">৳ ০</div></div>
       <div class="summary-card card-p"><div class="card-icon">💵</div><div class="card-label">ফিজিক্যাল ব্যালেন্স</div><div class="card-amount" id="physicalBalance">৳ ০</div></div>
-      <div class="summary-card card-l"><div class="card-icon">🤝</div><div class="card-label">লোন প্রদান</div><div class="card-amount" id="loanTotal">৳ ০</div></div>
+      <div class="summary-card card-l"><div class="card-icon">🤝</div><div class="card-label">বাকি লোন</div><div class="card-amount" id="loanTotal">৳ ০</div></div>
       <div class="summary-card card-e"><div class="card-icon">📉</div><div class="card-label">মোট ব্যয়</div><div class="card-amount" id="expenseTotal">৳ ০</div></div>
     </div>
 
@@ -270,6 +294,29 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
     <div class="confirm-btns">
       <button class="confirm-btn cb-cancel" onclick="closeConfirm()">বাতিল</button>
       <button class="confirm-btn cb-ok" id="confirmOkBtn">হ্যাঁ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Repayment Modal -->
+<div id="repayModal" onclick="closeRepayOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="font-weight:700;font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+      <span style="background:var(--green-dim);padding:6px 8px;border-radius:10px">💚</span>
+      লোন পরিশোধ
+    </div>
+    <div class="repay-summary" id="repaySummary"></div>
+    <label class="input-label">পরিশোধের পরিমাণ *</label>
+    <input type="number" class="input-field" id="repayAmount" placeholder="০.০০" inputmode="decimal">
+    <label class="input-label">নোট (ঐচ্ছিক)</label>
+    <input type="text" class="input-field" id="repayNote" placeholder="পরিশোধের বিবরণ...">
+    <label class="input-label">তারিখ *</label>
+    <input type="date" class="input-field" id="repayDate">
+    <button class="submit-btn btn-repay" onclick="submitRepayment()">✅ পরিশোধ নিশ্চিত করুন</button>
+    <div id="repayHistorySection" style="margin-top:18px;display:none">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">পূর্বের পরিশোধ:</div>
+      <div id="repayHistoryList"></div>
     </div>
   </div>
 </div>
@@ -370,16 +417,25 @@ function startListeners(){
 function setLoading(on){ document.getElementById('loadingBar').style.display=on?'block':'none'; }
 
 function calcSummary(){
-  let totalIn=0,loanOut=0,totalExp=0;
+  let totalIn=0,loanOut=0,totalRepaid=0,totalExp=0;
   transactions.forEach(t=>{
     if(t.type==='balance') totalIn+=t.amount;
-    else if(t.type==='loan') loanOut+=t.amount;
+    else if(t.type==='loan'){
+      loanOut+=t.amount;
+      // পরিশোধিত লোন ফেরত এসেছে
+      const repaid=t.repayments?t.repayments.reduce((s,r)=>s+r.amount,0):0;
+      totalRepaid+=repaid;
+    }
     else if(t.type==='expense') totalExp+=t.amount;
   });
-  const total=totalIn-totalExp, physical=totalIn-loanOut-totalExp;
+  // মোট ব্যালেন্স = আয় - ব্যয় (লোন প্রভাবিত করে না)
+  const total=totalIn-totalExp;
+  // ফিজিক্যাল = আয় - লোন বাকি - ব্যয় (পরিশোধিত লোন ফেরত এসেছে)
+  const loanStillOut=loanOut-totalRepaid;
+  const physical=totalIn-loanStillOut-totalExp;
   document.getElementById('totalBalance').textContent=fmt(total);
   document.getElementById('physicalBalance').textContent=fmt(physical);
-  document.getElementById('loanTotal').textContent=fmt(loanOut);
+  document.getElementById('loanTotal').textContent=fmt(loanStillOut); // বাকি লোন দেখাবে
   document.getElementById('expenseTotal').textContent=fmt(totalExp);
   document.getElementById('totalBalance').style.color=total<0?'var(--red)':'var(--accent)';
   document.getElementById('physicalBalance').style.color=physical<0?'var(--red)':'var(--green)';
@@ -430,22 +486,53 @@ function renderList(){
     }[t.type];
     const dateStr=t.date?new Date(t.date).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'}):'';
     const editCount=t.editHistory?.length||0;
-    const editedTag=editCount?`<div style="font-size:10px; color:var(--orange); margin-top:4px; cursor:pointer" onclick="showEditHistory('${t.id}')">✏️ ${editCount}বার সম্পাদিত</div>`:'';
-    return `<div class="tx-item">
-      <div class="tx-icon" style="background:${cfg.bg}">${cfg.icon}</div>
-      <div class="tx-info">
-        <div class="tx-type" style="color:${cfg.color}">${cfg.label}</div>
-        ${t.note?`<div class="tx-note">${t.note}</div>`:''}
-        <div class="tx-date">${dateStr}</div>
-        ${editedTag}
-      </div>
-      <div style="text-align:right">
-        <div class="tx-amount" style="color:${cfg.color}">${cfg.sign}${fmt(t.amount)}</div>
-        <div style="margin-top:5px">
-          <button class="tx-btn" onclick="openEdit('${t.id}')">✏️</button>
-          <button class="tx-btn" onclick="confirmDelete('${t.id}')">🗑️</button>
+    const editedTag=editCount?`<div style="font-size:10px;color:var(--orange);margin-top:4px;cursor:pointer" onclick="showEditHistory('${t.id}')">✏️ ${editCount}বার সম্পাদিত</div>`:'';
+
+    // লোন পরিশোধ অংশ
+    let loanBar='';
+    if(t.type==='loan'){
+      const repaid=t.repayments?t.repayments.reduce((s,r)=>s+r.amount,0):0;
+      const total=t.amount;
+      const pct=Math.min(100,Math.round(repaid/total*100));
+      const isDone=repaid>=total;
+      if(isDone){
+        loanBar=`<div class="loan-repay-bar">
+          <span class="loan-paid-badge">✅ সম্পূর্ণ পরিশোধিত</span>
+        </div>`;
+      } else {
+        loanBar=`<div class="loan-repay-bar">
+          <div class="loan-progress-wrap">
+            <div class="loan-progress-label">
+              <span>পরিশোধ: ${fmt(repaid)}</span>
+              <span>বাকি: ${fmt(total-repaid)}</span>
+            </div>
+            <div class="loan-progress-bg">
+              <div class="loan-progress-fill${isDone?' done':''}" style="width:${pct}%"></div>
+            </div>
+          </div>
+          <button class="repay-btn" onclick="openRepayModal('${t.id}')">💚 পরিশোধ</button>
+        </div>`;
+      }
+    }
+
+    return `<div class="tx-item" style="flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:12px;width:100%">
+        <div class="tx-icon" style="background:${cfg.bg}">${cfg.icon}</div>
+        <div class="tx-info">
+          <div class="tx-type" style="color:${cfg.color}">${cfg.label}</div>
+          ${t.note?`<div class="tx-note">${t.note}</div>`:''}
+          <div class="tx-date">${dateStr}</div>
+          ${editedTag}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="tx-amount" style="color:${cfg.color}">${cfg.sign}${fmt(t.amount)}</div>
+          <div style="margin-top:5px">
+            <button class="tx-btn" onclick="openEdit('${t.id}')">✏️</button>
+            <button class="tx-btn" onclick="confirmDelete('${t.id}')">🗑️</button>
+          </div>
         </div>
       </div>
+      ${loanBar?`<div style="width:100%;padding-top:2px">${loanBar}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -751,6 +838,73 @@ function downloadPDF(){
     iframe.contentWindow.print();
     showToast('📄 Print/Save করুন → Save as PDF');
   }, 800);
+}
+
+// ── লোন পরিশোধ ──
+let repayingId=null;
+
+function openRepayModal(id){
+  const t=transactions.find(x=>x.id===id); if(!t) return;
+  repayingId=id;
+  const repaid=t.repayments?t.repayments.reduce((s,r)=>s+r.amount,0):0;
+  const remaining=t.amount-repaid;
+
+  // সারাংশ
+  document.getElementById('repaySummary').innerHTML=`
+    <div class="repay-summary-row"><span>মোট লোন:</span><span style="color:var(--blue);font-weight:700">${fmt(t.amount)}</span></div>
+    ${t.note?`<div class="repay-summary-row"><span>নোট:</span><span style="color:var(--muted)">${t.note}</span></div>`:''}
+    <div class="repay-summary-row"><span>পরিশোধিত:</span><span style="color:var(--green);font-weight:700">${fmt(repaid)}</span></div>
+    <div class="repay-summary-row"><span>বাকি:</span><span style="color:var(--red);font-weight:700">${fmt(remaining)}</span></div>`;
+
+  document.getElementById('repayAmount').value='';
+  document.getElementById('repayAmount').max=remaining;
+  document.getElementById('repayNote').value='';
+  document.getElementById('repayDate').value=today;
+
+  // পূর্বের পরিশোধ ইতিহাস
+  const hist=document.getElementById('repayHistorySection');
+  const histList=document.getElementById('repayHistoryList');
+  if(t.repayments&&t.repayments.length){
+    hist.style.display='block';
+    histList.innerHTML=[...t.repayments].reverse().map(r=>{
+      const d=r.date?new Date(r.date).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'}):'';
+      return `<div class="repay-history-item">
+        <div><div class="repay-history-amount">${fmt(r.amount)}</div>
+        <div class="repay-history-info">${d}${r.note?' · '+r.note:''}</div></div>
+      </div>`;
+    }).join('');
+  } else { hist.style.display='none'; }
+
+  document.getElementById('repayModal').classList.add('active');
+  setTimeout(()=>document.getElementById('repayAmount').focus(),300);
+}
+
+function closeRepayOutside(e){
+  if(e.target===document.getElementById('repayModal'))
+    document.getElementById('repayModal').classList.remove('active');
+}
+
+async function submitRepayment(){
+  const t=transactions.find(x=>x.id===repayingId); if(!t) return;
+  const amount=parseFloat(document.getElementById('repayAmount').value);
+  const note=document.getElementById('repayNote').value.trim();
+  const date=document.getElementById('repayDate').value;
+  if(!amount||amount<=0){ showToast('⚠️ সঠিক পরিমাণ দিন'); return; }
+
+  const repaid=t.repayments?t.repayments.reduce((s,r)=>s+r.amount,0):0;
+  const remaining=t.amount-repaid;
+  if(amount>remaining){ showToast(`⚠️ সর্বোচ্চ ${fmt(remaining)} পরিশোধ করা যাবে`); return; }
+
+  const newRepayment={amount,note,date,paidAt:Date.now()};
+  const updatedRepayments=[...(t.repayments||[]),newRepayment];
+
+  try{
+    await txCol().doc(repayingId).update({repayments:updatedRepayments});
+    document.getElementById('repayModal').classList.remove('active');
+    const newRepaid=repaid+amount;
+    if(newRepaid>=t.amount) showToast('🎉 লোন সম্পূর্ণ পরিশোধ হয়েছে!');
+    else showToast(`✅ ${fmt(amount)} পরিশোধ হয়েছে। বাকি: ${fmt(t.amount-newRepaid)}`);
+  } catch(err){ showToast('❌ সমস্যা হয়েছে'); }
 }
 
 function showToast(m){
