@@ -132,6 +132,16 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 .confirm-btn{flex:1;padding:12px;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer}
 .cb-cancel{background:var(--surface2);color:var(--text)}.cb-ok{background:var(--red);color:#fff}
 
+/* MONTH FILTER */
+.month-filter-bar{display:flex;align-items:center;gap:8px;padding:0 14px 10px;flex-wrap:wrap}
+.month-select{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;font-size:13px;font-weight:600;font-family:'Hind Siliguri',sans-serif;color:var(--text);outline:none;cursor:pointer;min-width:0}
+.month-select:focus{border-color:var(--accent)}
+.pdf-btn{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);padding:9px 14px;font-size:12px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.pdf-btn:active{opacity:.85;transform:scale(.97)}
+
+/* TRASH SECTION */
+.trash-section{padding:0 14px 120px}
+
 #fileImportInput{display:none}
 </style>
 </head>
@@ -202,6 +212,12 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
         <div class="filter-tab" onclick="setFilter('balance',this)">ব্যালেন্স</div>
         <div class="filter-tab" onclick="setFilter('loan',this)">লোন</div>
         <div class="filter-tab" onclick="setFilter('expense',this)">ব্যয়</div>
+      </div>
+      <div class="month-filter-bar">
+        <select class="month-select" id="monthSelect" onchange="renderList()">
+          <option value="all">📅 সব মাস</option>
+        </select>
+        <button class="pdf-btn" onclick="downloadPDF()">📄 PDF</button>
       </div>
       <div class="divider"></div>
       <div id="transactionList"></div>
@@ -364,15 +380,43 @@ function calcSummary(){
   document.getElementById('physicalBalance').textContent=fmt(physical);
   document.getElementById('loanTotal').textContent=fmt(loanOut);
   document.getElementById('expenseTotal').textContent=fmt(totalExp);
-  
   document.getElementById('totalBalance').style.color=total<0?'var(--red)':'var(--accent)';
   document.getElementById('physicalBalance').style.color=physical<0?'var(--red)':'var(--green)';
+  populateMonths();
 }
 function fmt(n){ return '৳ '+Math.abs(n).toLocaleString('en-IN'); }
 
+function populateMonths(){
+  const sel=document.getElementById('monthSelect');
+  const cur=sel.value;
+  // সব unique মাস বের করা
+  const months=new Set();
+  transactions.forEach(t=>{
+    if(t.date) months.add(t.date.substring(0,7)); // YYYY-MM
+  });
+  const sorted=[...months].sort().reverse();
+  sel.innerHTML='<option value="all">📅 সব মাস</option>';
+  sorted.forEach(m=>{
+    const [y,mo]=m.split('-');
+    const label=new Date(y,mo-1,1).toLocaleDateString('bn-BD',{year:'numeric',month:'long'});
+    const opt=document.createElement('option');
+    opt.value=m; opt.textContent=label;
+    sel.appendChild(opt);
+  });
+  // আগের selection ঠিক রাখা
+  if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
+}
+
+function getFilteredList(){
+  const monthVal=document.getElementById('monthSelect')?.value||'all';
+  let filtered=currentFilter==='all'?transactions:transactions.filter(t=>t.type===currentFilter);
+  if(monthVal!=='all') filtered=filtered.filter(t=>t.date&&t.date.startsWith(monthVal));
+  return filtered;
+}
+
 function renderList(){
   const list=document.getElementById('transactionList');
-  let filtered=currentFilter==='all'?transactions:transactions.filter(t=>t.type===currentFilter);
+  const filtered=getFilteredList();
   if(!filtered.length){
     list.innerHTML=`<div class="empty-state">📋 কোনো লেনদেন নেই</div>`;
     return;
@@ -386,7 +430,6 @@ function renderList(){
     const dateStr=t.date?new Date(t.date).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'}):'';
     const editCount=t.editHistory?.length||0;
     const editedTag=editCount?`<div style="font-size:10px; color:var(--orange); margin-top:4px; cursor:pointer" onclick="showEditHistory('${t.id}')">✏️ ${editCount}বার সম্পাদিত</div>`:'';
-    
     return `<div class="tx-item">
       <div class="tx-icon" style="background:${cfg.bg}">${cfg.icon}</div>
       <div class="tx-info">
@@ -587,6 +630,90 @@ function setFilter(f,el){
   currentFilter=f;
   document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active'); renderList();
+}
+
+// ── PDF STATEMENT ──
+function downloadPDF(){
+  const filtered=getFilteredList();
+  if(!filtered.length){ showToast('⚠️ দেখানোর মতো তথ্য নেই'); return; }
+
+  const monthVal=document.getElementById('monthSelect').value;
+  const monthLabel=monthVal==='all'?'সব মাস':document.getElementById('monthSelect').selectedOptions[0].text;
+  const typeLabel={all:'সব',balance:'ব্যালেন্স',loan:'লোন',expense:'ব্যয়'}[currentFilter];
+
+  let totalIn=0,loanOut=0,totalExp=0;
+  filtered.forEach(t=>{
+    if(t.type==='balance') totalIn+=t.amount;
+    else if(t.type==='loan') loanOut+=t.amount;
+    else if(t.type==='expense') totalExp+=t.amount;
+  });
+  const total=totalIn-totalExp, physical=totalIn-loanOut-totalExp;
+
+  const rows=filtered.map(t=>{
+    const cfg={balance:{label:'ব্যালেন্স যোগ',sign:'+',color:'#198754'},loan:{label:'লোন প্রদান',sign:'-',color:'#0d6efd'},expense:{label:'ব্যয়',sign:'-',color:'#dc3545'}}[t.type];
+    const dateStr=t.date?new Date(t.date).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'}):'';
+    return `<tr>
+      <td style="padding:9px 10px;border-bottom:1px solid #eee;font-size:13px">${dateStr}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #eee;font-size:13px;color:${cfg.color};font-weight:600">${cfg.label}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #eee;font-size:12px;color:#666">${t.note||'—'}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #eee;font-size:13px;font-weight:700;color:${cfg.color};text-align:right">${cfg.sign}${fmt(t.amount)}</td>
+    </tr>`;
+  }).join('');
+
+  const userName=currentUser?.displayName||currentUser?.email||'';
+  const printDate=new Date().toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'});
+
+  const html=`<!DOCTYPE html><html lang="bn"><head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Hind Siliguri',sans-serif;background:#fff;color:#212529;padding:30px;max-width:700px;margin:0 auto}
+    .header{text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #6f42c1}
+    .logo{font-size:32px;margin-bottom:6px}
+    h1{font-size:22px;color:#6f42c1;font-weight:700}
+    .meta{font-size:12px;color:#666;margin-top:6px}
+    .filter-info{background:#f8f9fa;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:13px;color:#444;display:flex;gap:20px;flex-wrap:wrap}
+    .summary-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+    .s-card{background:#f8f9fa;border-radius:10px;padding:12px;text-align:center;border:1px solid #eee}
+    .s-label{font-size:11px;color:#666;margin-bottom:4px}
+    .s-val{font-size:16px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px}
+    th{background:#6f42c1;color:#fff;padding:10px;text-align:left;font-size:13px}
+    th:last-child{text-align:right}
+    tr:nth-child(even){background:#f8f9fa}
+    .footer{text-align:center;font-size:11px;color:#aaa;margin-top:20px;padding-top:12px;border-top:1px solid #eee}
+    @media print{body{padding:15px}.no-print{display:none}}
+  </style></head><body>
+  <div class="header">
+    <div class="logo">💰</div>
+    <h1>আমার হিসাব — স্টেটমেন্ট</h1>
+    <div class="meta">ব্যবহারকারী: ${userName} &nbsp;|&nbsp; তৈরি: ${printDate}</div>
+  </div>
+  <div class="filter-info">
+    <span>📅 সময়কাল: <strong>${monthLabel}</strong></span>
+    <span>🏷️ ধরন: <strong>${typeLabel}</strong></span>
+    <span>📊 মোট এন্ট্রি: <strong>${filtered.length}টি</strong></span>
+  </div>
+  <div class="summary-row">
+    <div class="s-card"><div class="s-label">মোট ব্যালেন্স</div><div class="s-val" style="color:${total<0?'#dc3545':'#6f42c1'}">${fmt(total)}</div></div>
+    <div class="s-card"><div class="s-label">ফিজিক্যাল</div><div class="s-val" style="color:${physical<0?'#dc3545':'#198754'}">${fmt(physical)}</div></div>
+    <div class="s-card"><div class="s-label">লোন প্রদান</div><div class="s-val" style="color:#0d6efd">${fmt(loanOut)}</div></div>
+    <div class="s-card"><div class="s-label">মোট ব্যয়</div><div class="s-val" style="color:#dc3545">${fmt(totalExp)}</div></div>
+  </div>
+  <table>
+    <thead><tr>
+      <th>তারিখ</th><th>ধরন</th><th>নোট</th><th style="text-align:right">পরিমাণ</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="footer">আমার হিসাব অ্যাপ · মোট ${filtered.length}টি লেনদেন</div>
+  <script>window.onload=()=>{ window.print(); window.onafterprint=()=>window.close(); }<\/script>
+  </body></html>`;
+
+  const w=window.open('','_blank');
+  if(w){ w.document.write(html); w.document.close(); }
+  else { showToast('⚠️ Popup block হয়েছে, browser-এ allow করুন'); }
 }
 
 function showToast(m){
