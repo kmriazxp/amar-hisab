@@ -149,10 +149,10 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 .repay-btn{background:var(--green-dim);border:1px solid var(--green);color:var(--green);font-size:11px;font-weight:700;font-family:'Hind Siliguri',sans-serif;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .loan-paid-badge{font-size:10px;color:var(--green);font-weight:700;background:var(--green-dim);padding:3px 8px;border-radius:6px}
 
-/* REPAYMENT MODAL */
+/* REPAYMENT MODAL — outside click বন্ধ করা হয়েছে */
 #repayModal{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:250;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
 #repayModal.active{opacity:1;pointer-events:all}
-#repayModal .modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;border-top:1px solid var(--border);transform:translateY(100%);transition:transform .3s ease-out}
+#repayModal .modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;border-top:1px solid var(--border);transform:translateY(100%);transition:transform .3s ease-out;max-height:85vh;overflow-y:auto}
 #repayModal.active .modal{transform:translateY(0)}
 .repay-summary{background:var(--surface2);border-radius:var(--rs);padding:12px 14px;margin-bottom:16px}
 .repay-summary-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
@@ -207,7 +207,7 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
     <div class="summary-grid">
       <div class="summary-card card-t"><div class="card-icon">🏦</div><div class="card-label">মোট ব্যালেন্স</div><div class="card-amount" id="totalBalance">৳ ০</div></div>
       <div class="summary-card card-p"><div class="card-icon">💵</div><div class="card-label">ফিজিক্যাল ব্যালেন্স</div><div class="card-amount" id="physicalBalance">৳ ০</div></div>
-      <div class="summary-card card-l"><div class="card-icon">🤝</div><div class="card-label">লোন প্রদান</div><div class="card-amount" id="loanTotal">৳ ০</div></div>
+      <div class="summary-card card-l"><div class="card-icon">🤝</div><div class="card-label">বাকি লোন</div><div class="card-amount" id="loanTotal">৳ ০</div></div>
       <div class="summary-card card-e"><div class="card-icon">📉</div><div class="card-label">মোট ব্যয়</div><div class="card-amount" id="expenseTotal">৳ ০</div></div>
     </div>
 
@@ -272,6 +272,15 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
     
     <label class="input-label">নোট / বিবরণ</label>
     <input type="text" class="input-field" id="noteInput" placeholder="কারণ বা বিবরণ লিখুন...">
+
+    <div id="loanPersonGroup" style="display:none">
+      <label class="input-label">ব্যক্তির নাম (ঐচ্ছিক)</label>
+      <input type="text" class="input-field" id="personNameInput" placeholder="যাকে লোন দিচ্ছেন তার নাম...">
+      <label class="input-label">মোবাইল নম্বর (ঐচ্ছিক)</label>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+        <input type="tel" class="input-field" id="personPhoneInput" placeholder="01XXXXXXXXX" inputmode="tel" style="margin-bottom:0;flex:1">
+      </div>
+    </div>
     
     <label class="input-label">তারিখ *</label>
     <input type="date" class="input-field" id="dateInput">
@@ -298,13 +307,16 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
   </div>
 </div>
 
-<!-- Repayment Modal -->
-<div id="repayModal" onclick="closeRepayOutside(event)">
+<!-- Repayment Modal — outside click এ বন্ধ হবে না -->
+<div id="repayModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div style="font-weight:700;font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px">
-      <span style="background:var(--green-dim);padding:6px 8px;border-radius:10px">💚</span>
-      লোন পরিশোধ
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px">
+        <span style="background:var(--green-dim);padding:6px 8px;border-radius:10px">💚</span>
+        লোন পরিশোধ
+      </div>
+      <button onclick="closeRepayModal()" style="background:var(--red-dim);border:1px solid var(--red);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;font-family:'Hind Siliguri',sans-serif;color:var(--red);cursor:pointer">✕ বন্ধ</button>
     </div>
     <div class="repay-summary" id="repaySummary"></div>
     <label class="input-label">পরিশোধের পরিমাণ *</label>
@@ -521,6 +533,10 @@ function renderList(){
         <div class="tx-info">
           <div class="tx-type" style="color:${cfg.color}">${cfg.label}</div>
           ${t.note?`<div class="tx-note">${t.note}</div>`:''}
+          ${t.type==='loan'&&(t.personName||t.personPhone)?`<div style="font-size:11px;color:var(--muted);margin-top:2px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+            ${t.personName?`<span>👤 ${t.personName}</span>`:''}
+            ${t.personPhone?`<a href="tel:${t.personPhone}" style="color:var(--blue);font-weight:700;text-decoration:none">📞 ${t.personPhone}</a>`:''}
+          </div>`:''}
           <div class="tx-date">${dateStr}</div>
           ${editedTag}
         </div>
@@ -575,27 +591,34 @@ function switchTab(tab,el){
 
 function openModal(type){
   editingId=null; currentType=type;
-  const titles = {balance:'➕ ব্যালেন্স যোগ', loan:'🤝 লোন প্রদান', expense:'💸 ব্যয় যোগ'};
-  document.getElementById('modalTitle').textContent = titles[type];
+  const titles={balance:'➕ ব্যালেন্স যোগ',loan:'🤝 লোন প্রদান',expense:'💸 ব্যয় যোগ'};
+  document.getElementById('modalTitle').textContent=titles[type];
   document.getElementById('submitBtn').textContent='যোগ করুন';
-  document.getElementById('submitBtn').className = `submit-btn btn-${type}`;
+  document.getElementById('submitBtn').className=`submit-btn btn-${type}`;
   document.getElementById('amountInput').value='';
   document.getElementById('noteInput').value='';
   document.getElementById('dateInput').value=today;
   document.getElementById('editReasonGroup').style.display='none';
+  document.getElementById('personNameInput').value='';
+  document.getElementById('personPhoneInput').value='';
+  document.getElementById('loanPersonGroup').style.display=type==='loan'?'block':'none';
   document.getElementById('modalOverlay').classList.add('active');
 }
 
 function openEdit(id){
+async function confirmDelete(id){
   const t=transactions.find(x=>x.id===id); if(!t) return;
   editingId=id; currentType=t.type;
-  document.getElementById('modalTitle').textContent = '✏️ লেনদেন সংশোধন';
+  document.getElementById('modalTitle').textContent='✏️ লেনদেন সংশোধন';
   document.getElementById('submitBtn').textContent='আপডেট করুন';
-  document.getElementById('submitBtn').className = 'submit-btn btn-save';
+  document.getElementById('submitBtn').className='submit-btn btn-save';
   document.getElementById('amountInput').value=t.amount;
   document.getElementById('noteInput').value=t.note||'';
   document.getElementById('dateInput').value=t.date||today;
   document.getElementById('editReasonGroup').style.display='block';
+  document.getElementById('personNameInput').value=t.personName||'';
+  document.getElementById('personPhoneInput').value=t.personPhone||'';
+  document.getElementById('loanPersonGroup').style.display=t.type==='loan'?'block':'none';
   document.getElementById('modalOverlay').classList.add('active');
 }
 
@@ -606,22 +629,27 @@ async function submitTransaction(){
   const amount=parseFloat(document.getElementById('amountInput').value);
   const note=document.getElementById('noteInput').value.trim();
   const date=document.getElementById('dateInput').value;
-  if(!amount) { showToast('⚠️ পরিমাণ দিন'); return; }
-
+  const personName=document.getElementById('personNameInput').value.trim();
+  const personPhone=document.getElementById('personPhoneInput').value.trim();
+  if(!amount){ showToast('⚠️ পরিমাণ দিন'); return; }
   try{
     if(editingId){
       const old=transactions.find(x=>x.id===editingId);
       const reason=document.getElementById('editReasonInput').value.trim();
       const histEntry={changedAt:Date.now(),reason:reason||'এডিট',before:{amount:old.amount,note:old.note||'',date:old.date||''}};
-      await txCol().doc(editingId).update({amount,note,date,editHistory:firebase.firestore.FieldValue.arrayUnion(histEntry),updatedAt:Date.now()});
+      const upd={amount,note,date,editHistory:firebase.firestore.FieldValue.arrayUnion(histEntry),updatedAt:Date.now()};
+      if(old.type==='loan'){upd.personName=personName;upd.personPhone=personPhone;}
+      await txCol().doc(editingId).update(upd);
     } else {
-      await txCol().add({type:currentType,amount,note,date,createdAt:Date.now(),editHistory:[]});
+      const newData={type:currentType,amount,note,date,createdAt:Date.now(),editHistory:[]};
+      if(currentType==='loan'){newData.personName=personName;newData.personPhone=personPhone;newData.repayments=[];}
+      await txCol().add(newData);
     }
-    closeModal(); showToast('✅ সফলভাবে সেভ হয়েছে');
-  } catch(e){ showToast('❌ ভুল হয়েছে'); }
+    closeModal(); showToast('✅ সফলভাবে সেভ হয়েছে');
+  } catch(e){ showToast('❌ ভুল হয়েছে: '+e.message); }
 }
 
-async function confirmDelete(id){
+
   const t=transactions.find(x=>x.id===id); if(!t) return;
   showConfirm('🗑️','ট্র্যাশে পাঠান','আপনি কি এটি ট্র্যাশে পাঠাতে চান?','হ্যাঁ','cb-ok', async()=>{
     const data={...t,deletedAt:Date.now()}; delete data.id;
@@ -879,9 +907,8 @@ function openRepayModal(id){
   setTimeout(()=>document.getElementById('repayAmount').focus(),300);
 }
 
-function closeRepayOutside(e){
-  if(e.target===document.getElementById('repayModal'))
-    document.getElementById('repayModal').classList.remove('active');
+function closeRepayModal(){
+  document.getElementById('repayModal').classList.remove('active');
 }
 
 async function submitRepayment(){
