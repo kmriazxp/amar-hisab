@@ -24,6 +24,8 @@
   --muted:#6c757d; 
   --accent:#6f42c1; 
   --accent-dim:#6f42c115;
+  --purple:#9b59b6;
+  --purple-dim:#9b59b615;
   --r:16px; 
   --rs:12px;
 }
@@ -167,6 +169,50 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 /* TRASH SECTION */
 .trash-section{padding:0 14px 120px}
 #fileImportInput{display:none}
+
+/* DEBT SECTION */
+.debt-section{padding:0 14px 120px}
+.debt-summary-card{background:linear-gradient(135deg,#9b59b6,#6f42c1);border-radius:var(--r);padding:18px;margin:14px 0 10px;color:#fff;box-shadow:0 4px 12px rgba(111,66,193,.25)}
+.debt-summary-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.debt-summary-title{font-size:13px;font-weight:700;opacity:.85}
+.debt-summary-total{text-align:right}
+.debt-summary-amount{font-size:24px;font-weight:800}
+.debt-summary-label{font-size:10px;opacity:.75;margin-top:2px}
+.debt-summary-row{display:flex;justify-content:space-between;font-size:12px;opacity:.9;background:rgba(255,255,255,.15);border-radius:8px;padding:8px 10px;margin-top:4px}
+.add-debt-btn{width:100%;margin:0 0 14px;padding:13px;border-radius:var(--rs);border:none;font-size:14px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 3px 8px rgba(111,66,193,.2)}
+.add-debt-btn:active{transform:scale(.97)}
+.debt-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:12px;box-shadow:0 2px 4px rgba(0,0,0,.03)}
+.debt-item-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.debt-item-icon{width:38px;height:38px;border-radius:12px;background:var(--purple-dim);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.debt-item-info{flex:1;min-width:0}
+.debt-item-name{font-size:14px;font-weight:700;color:var(--text)}
+.debt-item-note{font-size:12px;color:var(--muted);margin-top:2px}
+.debt-item-date{font-size:11px;color:var(--muted);margin-top:2px}
+.debt-item-amounts{text-align:right;flex-shrink:0}
+.debt-item-total{font-size:15px;font-weight:800;color:var(--purple)}
+.debt-item-remaining{font-size:11px;font-weight:700;margin-top:2px}
+.debt-progress-wrap{margin-bottom:8px}
+.debt-progress-label{font-size:10px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between}
+.debt-progress-bg{height:5px;background:var(--bg);border-radius:10px;overflow:hidden}
+.debt-progress-fill{height:100%;border-radius:10px;background:var(--purple);transition:width .4s}
+.debt-progress-fill.done{background:var(--green)}
+.debt-item-actions{display:flex;gap:8px;margin-top:4px}
+.debt-pay-btn{flex:1;background:var(--green-dim);border:1px solid var(--green);color:var(--green);font-size:12px;font-weight:700;font-family:'Hind Siliguri',sans-serif;padding:7px;border-radius:8px;cursor:pointer}
+.debt-edit-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:14px;font-family:'Hind Siliguri',sans-serif;padding:7px 10px;border-radius:8px;cursor:pointer}
+.debt-del-btn{background:var(--red-dim);border:1px solid var(--red);color:var(--red);font-size:14px;font-family:'Hind Siliguri',sans-serif;padding:7px 10px;border-radius:8px;cursor:pointer}
+.debt-paid-badge{font-size:11px;color:var(--green);font-weight:700;background:var(--green-dim);padding:4px 10px;border-radius:6px;display:inline-block;margin-top:4px}
+
+/* DEBT PAY MODAL */
+#debtPayModal{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:250;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+#debtPayModal.active{opacity:1;pointer-events:all}
+#debtPayModal .modal{background:var(--surface);border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;border-top:1px solid var(--border);transform:translateY(100%);transition:transform .3s ease-out}
+#debtPayModal.active .modal{transform:translateY(0)}
+.debt-pay-summary{background:var(--surface2);border-radius:var(--rs);padding:12px 14px;margin-bottom:16px}
+.debt-pay-summary-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.debt-pay-summary-row:last-child{margin-bottom:0;font-weight:700;border-top:1px solid var(--border);padding-top:6px;margin-top:6px}
+.debt-pay-history-item{background:var(--surface2);border-radius:8px;padding:9px 12px;margin-bottom:6px;border-left:3px solid var(--green);display:flex;justify-content:space-between;align-items:center}
+.debt-pay-history-info{font-size:11px;color:var(--muted)}
+.debt-pay-history-amount{font-size:13px;font-weight:700;color:var(--green)}
 </style>
 </head>
 <body>
@@ -200,6 +246,7 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 
   <div class="nav-tabs">
     <div class="nav-tab active" onclick="switchTab('main',this)">🏠 হিসাব</div>
+    <div class="nav-tab" onclick="switchTab('debt',this)">💳 আমার ঋণ</div>
     <div class="nav-tab" onclick="switchTab('trash',this)">🗑️ ট্র্যাশ</div>
   </div>
 
@@ -245,6 +292,33 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
       </div>
       <div class="divider"></div>
       <div id="transactionList"></div>
+    </div>
+  </div>
+
+  <div id="tab-debt" style="display:none">
+    <div class="debt-section">
+      <div class="debt-summary-card" id="debtSummaryCard">
+        <div class="debt-summary-top">
+          <div>
+            <div class="debt-summary-title">💳 আমার মোট ঋণ</div>
+          </div>
+          <div class="debt-summary-total">
+            <div class="debt-summary-amount" id="debtTotalAmount">৳ ০</div>
+            <div class="debt-summary-label">মোট ঋণ নিয়েছি</div>
+          </div>
+        </div>
+        <div class="debt-summary-row">
+          <span>পরিশোধ হয়েছে</span>
+          <span id="debtPaidAmount" style="font-weight:700">৳ ০</span>
+        </div>
+        <div class="debt-summary-row" style="margin-top:6px;background:rgba(255,255,255,.25)">
+          <span>এখনো বাকি আছে</span>
+          <span id="debtRemainingAmount" style="font-weight:800">৳ ০</span>
+        </div>
+      </div>
+      <button class="add-debt-btn" onclick="openDebtModal()">➕ নতুন ঋণ যোগ করুন</button>
+      <div class="divider"></div>
+      <div id="debtList"></div>
     </div>
   </div>
 
@@ -330,6 +404,49 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
   </div>
 </div>
 
+<!-- Debt Add/Edit Modal -->
+<div class="modal-overlay" id="debtModalOverlay" onclick="closeDebtModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="font-weight:700;font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px" id="debtModalTitle">
+      <span style="background:var(--purple-dim);padding:6px 8px;border-radius:10px">💳</span>
+      নতুন ঋণ যোগ করুন
+    </div>
+    <label class="input-label">কার কাছ থেকে ঋণ নিয়েছি *</label>
+    <input type="text" class="input-field" id="debtFromInput" placeholder="নাম বা প্রতিষ্ঠান...">
+    <label class="input-label">ঋণের পরিমাণ (টাকা) *</label>
+    <input type="number" class="input-field" id="debtAmountInput" placeholder="০.০০" inputmode="decimal">
+    <label class="input-label">নোট / কারণ</label>
+    <input type="text" class="input-field" id="debtNoteInput" placeholder="কেন ঋণ নিয়েছেন...">
+    <label class="input-label">তারিখ *</label>
+    <input type="date" class="input-field" id="debtDateInput">
+    <button class="submit-btn" id="debtSubmitBtn" style="background:var(--purple);color:#fff" onclick="submitDebt()">💳 ঋণ যোগ করুন</button>
+  </div>
+</div>
+
+<!-- Debt Pay Modal -->
+<div id="debtPayModal" onclick="closeDebtPayModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="font-weight:700;font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+      <span style="background:var(--green-dim);padding:6px 8px;border-radius:10px">💚</span>
+      ঋণ পরিশোধ
+    </div>
+    <div class="debt-pay-summary" id="debtPaySummary"></div>
+    <label class="input-label">পরিশোধের পরিমাণ *</label>
+    <input type="number" class="input-field" id="debtPayAmount" placeholder="০.০০" inputmode="decimal">
+    <label class="input-label">নোট (ঐচ্ছিক)</label>
+    <input type="text" class="input-field" id="debtPayNote" placeholder="পরিশোধের বিবরণ...">
+    <label class="input-label">তারিখ *</label>
+    <input type="date" class="input-field" id="debtPayDate">
+    <button class="submit-btn btn-repay" onclick="submitDebtPayment()">✅ পরিশোধ নিশ্চিত করুন</button>
+    <div id="debtPayHistorySection" style="margin-top:18px;display:none">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">পরিশোধের ইতিহাস</div>
+      <div id="debtPayHistoryList"></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <iframe id="printFrame" style="display:none"></iframe>
 
@@ -356,9 +473,9 @@ const provider = new firebase.auth.GoogleAuthProvider();
 
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-let currentUser=null, transactions=[], trashItems=[];
-let currentType='', currentFilter='all', editingId=null;
-let txUnsub=null, trashUnsub=null;
+let currentUser=null, transactions=[], trashItems=[], debts=[];
+let currentType='', currentFilter='all', editingId=null, editingDebtId=null;
+let txUnsub=null, trashUnsub=null, debtUnsub=null;
 const today = new Date().toISOString().split('T')[0];
 
 // --- AUTH HANDLER ---
@@ -400,6 +517,7 @@ function doSignOut(){
 
 function txCol(){ return db.collection('users').doc(currentUser.uid).collection('transactions'); }
 function trashCol(){ return db.collection('users').doc(currentUser.uid).collection('trash'); }
+function debtCol(){ return db.collection('users').doc(currentUser.uid).collection('myDebts'); }
 
 function startListeners(){
   setLoading(true);
@@ -411,6 +529,11 @@ function startListeners(){
   trashUnsub = trashCol().orderBy('deletedAt','desc').onSnapshot(snap=>{
     trashItems=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderTrash();
+  });
+
+  debtUnsub = debtCol().orderBy('createdAt','desc').onSnapshot(snap=>{
+    debts=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderDebtSummary(); renderDebtList();
   });
 }
 
@@ -570,6 +693,7 @@ function switchTab(tab,el){
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('tab-main').style.display=tab==='main'?'block':'none';
+  document.getElementById('tab-debt').style.display=tab==='debt'?'block':'none';
   document.getElementById('tab-trash').style.display=tab==='trash'?'block':'none';
 }
 
@@ -905,6 +1029,195 @@ async function submitRepayment(){
     if(newRepaid>=t.amount) showToast('🎉 লোন সম্পূর্ণ পরিশোধ হয়েছে!');
     else showToast(`✅ ${fmt(amount)} পরিশোধ হয়েছে। বাকি: ${fmt(t.amount-newRepaid)}`);
   } catch(err){ showToast('❌ সমস্যা হয়েছে'); }
+}
+
+// ── আমার ঋণ ──
+let payingDebtId=null;
+
+function renderDebtSummary(){
+  let total=0, paid=0;
+  debts.forEach(d=>{
+    total+=d.amount;
+    const p=d.payments?d.payments.reduce((s,r)=>s+r.amount,0):0;
+    paid+=p;
+  });
+  const remaining=total-paid;
+  document.getElementById('debtTotalAmount').textContent=fmt(total);
+  document.getElementById('debtPaidAmount').textContent=fmt(paid);
+  document.getElementById('debtRemainingAmount').textContent=fmt(remaining);
+}
+
+function renderDebtList(){
+  const list=document.getElementById('debtList');
+  if(!debts.length){
+    list.innerHTML=`<div class="empty-state">💳 কোনো ঋণ নেই</div>`;
+    return;
+  }
+  list.innerHTML=debts.map(d=>{
+    const paid=d.payments?d.payments.reduce((s,r)=>s+r.amount,0):0;
+    const remaining=d.amount-paid;
+    const pct=Math.min(100,Math.round(paid/d.amount*100));
+    const isDone=remaining<=0;
+    const dateStr=d.date?new Date(d.date).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'}):'';
+
+    const progressBar=isDone
+      ? `<div class="debt-paid-badge">✅ সম্পূর্ণ পরিশোধিত</div>`
+      : `<div class="debt-progress-wrap">
+          <div class="debt-progress-label">
+            <span>পরিশোধ: ${fmt(paid)}</span>
+            <span>বাকি: ${fmt(remaining)}</span>
+          </div>
+          <div class="debt-progress-bg">
+            <div class="debt-progress-fill${isDone?' done':''}" style="width:${pct}%"></div>
+          </div>
+        </div>`;
+
+    const actions=isDone
+      ? `<div style="display:flex;gap:8px;margin-top:6px">
+          <button class="debt-edit-btn" onclick="openDebtEdit('${d.id}')">✏️</button>
+          <button class="debt-del-btn" onclick="confirmDebtDelete('${d.id}')">🗑️</button>
+        </div>`
+      : `<div class="debt-item-actions">
+          <button class="debt-pay-btn" onclick="openDebtPayModal('${d.id}')">💚 পরিশোধ করুন</button>
+          <button class="debt-edit-btn" onclick="openDebtEdit('${d.id}')">✏️</button>
+          <button class="debt-del-btn" onclick="confirmDebtDelete('${d.id}')">🗑️</button>
+        </div>`;
+
+    return `<div class="debt-item">
+      <div class="debt-item-header">
+        <div class="debt-item-icon">💳</div>
+        <div class="debt-item-info">
+          <div class="debt-item-name">${d.from}</div>
+          ${d.note?`<div class="debt-item-note">${d.note}</div>`:''}
+          ${dateStr?`<div class="debt-item-date">📅 ${dateStr}</div>`:''}
+        </div>
+        <div class="debt-item-amounts">
+          <div class="debt-item-total">${fmt(d.amount)}</div>
+          <div class="debt-item-remaining" style="color:${isDone?'var(--green)':'var(--red)'}">
+            ${isDone?'পরিশোধিত':'বাকি '+fmt(remaining)}
+          </div>
+        </div>
+      </div>
+      ${progressBar}
+      ${actions}
+    </div>`;
+  }).join('');
+}
+
+function openDebtModal(){
+  editingDebtId=null;
+  document.getElementById('debtModalTitle').innerHTML=`<span style="background:var(--purple-dim);padding:6px 8px;border-radius:10px">💳</span> নতুন ঋণ যোগ করুন`;
+  document.getElementById('debtSubmitBtn').textContent='💳 ঋণ যোগ করুন';
+  document.getElementById('debtFromInput').value='';
+  document.getElementById('debtAmountInput').value='';
+  document.getElementById('debtNoteInput').value='';
+  document.getElementById('debtDateInput').value=today;
+  document.getElementById('debtModalOverlay').classList.add('active');
+  setTimeout(()=>document.getElementById('debtFromInput').focus(),300);
+}
+
+function openDebtEdit(id){
+  const d=debts.find(x=>x.id===id); if(!d) return;
+  editingDebtId=id;
+  document.getElementById('debtModalTitle').innerHTML=`<span style="background:var(--purple-dim);padding:6px 8px;border-radius:10px">✏️</span> ঋণ সম্পাদনা`;
+  document.getElementById('debtSubmitBtn').textContent='✅ আপডেট করুন';
+  document.getElementById('debtFromInput').value=d.from;
+  document.getElementById('debtAmountInput').value=d.amount;
+  document.getElementById('debtNoteInput').value=d.note||'';
+  document.getElementById('debtDateInput').value=d.date||today;
+  document.getElementById('debtModalOverlay').classList.add('active');
+}
+
+function closeDebtModal(){ document.getElementById('debtModalOverlay').classList.remove('active'); }
+function closeDebtModalOutside(e){ if(e.target===document.getElementById('debtModalOverlay')) closeDebtModal(); }
+
+async function submitDebt(){
+  const from=document.getElementById('debtFromInput').value.trim();
+  const amount=parseFloat(document.getElementById('debtAmountInput').value);
+  const note=document.getElementById('debtNoteInput').value.trim();
+  const date=document.getElementById('debtDateInput').value;
+  if(!from){ showToast('⚠️ কার কাছ থেকে ঋণ তা লিখুন'); return; }
+  if(!amount||amount<=0){ showToast('⚠️ সঠিক পরিমাণ দিন'); return; }
+  try{
+    if(editingDebtId){
+      await debtCol().doc(editingDebtId).update({from,amount,note,date,updatedAt:Date.now()});
+      showToast('✅ ঋণ আপডেট হয়েছে');
+    } else {
+      await debtCol().add({from,amount,note,date,payments:[],createdAt:Date.now()});
+      showToast('✅ ঋণ যোগ হয়েছে');
+    }
+    closeDebtModal();
+  } catch(e){ showToast('❌ সমস্যা হয়েছে'); }
+}
+
+function openDebtPayModal(id){
+  const d=debts.find(x=>x.id===id); if(!d) return;
+  payingDebtId=id;
+  const paid=d.payments?d.payments.reduce((s,r)=>s+r.amount,0):0;
+  const remaining=d.amount-paid;
+
+  document.getElementById('debtPaySummary').innerHTML=`
+    <div class="debt-pay-summary-row"><span>কার কাছ থেকে:</span><span style="font-weight:700">${d.from}</span></div>
+    <div class="debt-pay-summary-row"><span>মোট ঋণ:</span><span style="color:var(--purple);font-weight:700">${fmt(d.amount)}</span></div>
+    ${d.note?`<div class="debt-pay-summary-row"><span>নোট:</span><span style="color:var(--muted)">${d.note}</span></div>`:''}
+    <div class="debt-pay-summary-row"><span>পরিশোধিত:</span><span style="color:var(--green);font-weight:700">${fmt(paid)}</span></div>
+    <div class="debt-pay-summary-row"><span>এখনো বাকি:</span><span style="color:var(--red);font-weight:700">${fmt(remaining)}</span></div>`;
+
+  document.getElementById('debtPayAmount').value='';
+  document.getElementById('debtPayAmount').max=remaining;
+  document.getElementById('debtPayNote').value='';
+  document.getElementById('debtPayDate').value=today;
+
+  const hist=document.getElementById('debtPayHistorySection');
+  const histList=document.getElementById('debtPayHistoryList');
+  if(d.payments&&d.payments.length){
+    hist.style.display='block';
+    histList.innerHTML=[...d.payments].reverse().map(p=>{
+      const dt=p.date?new Date(p.date).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'}):'';
+      return `<div class="debt-pay-history-item">
+        <div><div class="debt-pay-history-amount">${fmt(p.amount)}</div>
+        <div class="debt-pay-history-info">${dt}${p.note?' · '+p.note:''}</div></div>
+      </div>`;
+    }).join('');
+  } else { hist.style.display='none'; }
+
+  document.getElementById('debtPayModal').classList.add('active');
+  setTimeout(()=>document.getElementById('debtPayAmount').focus(),300);
+}
+
+function closeDebtPayModalOutside(e){
+  if(e.target===document.getElementById('debtPayModal'))
+    document.getElementById('debtPayModal').classList.remove('active');
+}
+
+async function submitDebtPayment(){
+  const d=debts.find(x=>x.id===payingDebtId); if(!d) return;
+  const amount=parseFloat(document.getElementById('debtPayAmount').value);
+  const note=document.getElementById('debtPayNote').value.trim();
+  const date=document.getElementById('debtPayDate').value;
+  if(!amount||amount<=0){ showToast('⚠️ সঠিক পরিমাণ দিন'); return; }
+
+  const paid=d.payments?d.payments.reduce((s,r)=>s+r.amount,0):0;
+  const remaining=d.amount-paid;
+  if(amount>remaining){ showToast(`⚠️ সর্বোচ্চ ${fmt(remaining)} পরিশোধ করা যাবে`); return; }
+
+  const newPayment={amount,note,date,paidAt:Date.now()};
+  const updatedPayments=[...(d.payments||[]),newPayment];
+
+  try{
+    await debtCol().doc(payingDebtId).update({payments:updatedPayments});
+    document.getElementById('debtPayModal').classList.remove('active');
+    const newPaid=paid+amount;
+    if(newPaid>=d.amount) showToast('🎉 ঋণ সম্পূর্ণ পরিশোধ হয়েছে!');
+    else showToast(`✅ ${fmt(amount)} পরিশোধ হয়েছে। বাকি: ${fmt(d.amount-newPaid)}`);
+  } catch(err){ showToast('❌ সমস্যা হয়েছে'); }
+}
+
+async function confirmDebtDelete(id){
+  showConfirm('🗑️','ঋণ মুছুন','এই ঋণের তথ্য মুছে ফেলবেন?','হ্যাঁ','cb-ok', async()=>{
+    await debtCol().doc(id).delete();
+    showToast('🗑️ ঋণ মুছা হয়েছে');
+  });
 }
 
 function showToast(m){
