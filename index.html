@@ -300,11 +300,11 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
       <div class="debt-summary-card" id="debtSummaryCard">
         <div class="debt-summary-top">
           <div>
-            <div class="debt-summary-title">💳 আমার মোট ঋণ</div>
+            <div class="debt-summary-title">💳 বর্তমান ঋণ</div>
           </div>
           <div class="debt-summary-total">
-            <div class="debt-summary-amount" id="debtTotalAmount">৳ ০</div>
-            <div class="debt-summary-label">মোট ঋণ নিয়েছি</div>
+            <div class="debt-summary-amount" id="debtRemainingAmount">৳ ০</div>
+            <div class="debt-summary-label">এখনো বাকি আছে</div>
           </div>
         </div>
         <div class="debt-summary-row">
@@ -312,8 +312,8 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
           <span id="debtPaidAmount" style="font-weight:700">৳ ০</span>
         </div>
         <div class="debt-summary-row" style="margin-top:6px;background:rgba(255,255,255,.25)">
-          <span>এখনো বাকি আছে</span>
-          <span id="debtRemainingAmount" style="font-weight:800">৳ ০</span>
+          <span>মোট ঋণ নিয়েছি</span>
+          <span id="debtTotalAmount" style="font-weight:800">৳ ০</span>
         </div>
       </div>
       <button class="add-debt-btn" onclick="openDebtModal()">➕ নতুন ঋণ যোগ করুন</button>
