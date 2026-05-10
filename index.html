@@ -325,11 +325,17 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
   <div id="tab-trash" style="display:none">
     <div class="trash-section">
       <div class="history-header" style="margin-top:14px">
-        <div class="section-title" style="margin-bottom:0">🗑️ ট্র্যাশ</div>
+        <div class="section-title" style="margin-bottom:0">🗑️ লেনদেন ট্র্যাশ</div>
         <button class="clear-btn" onclick="emptyTrash()">সব মুছুন</button>
       </div>
       <div class="divider"></div>
       <div id="trashList"></div>
+      <div class="history-header" style="margin-top:18px">
+        <div class="section-title" style="margin-bottom:0">💳 ঋণ ট্র্যাশ</div>
+        <button class="clear-btn" onclick="emptyDebtTrash()">সব মুছুন</button>
+      </div>
+      <div class="divider"></div>
+      <div id="debtTrashList"></div>
     </div>
   </div>
 
@@ -420,7 +426,23 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
     <input type="text" class="input-field" id="debtNoteInput" placeholder="কেন ঋণ নিয়েছেন...">
     <label class="input-label">তারিখ *</label>
     <input type="date" class="input-field" id="debtDateInput">
+    <div id="debtEditReasonGroup" style="display:none">
+      <label class="input-label">সম্পাদনার কারণ (ঐচ্ছিক)</label>
+      <input type="text" class="input-field" id="debtEditReasonInput" placeholder="কেন পরিবর্তন করছেন?">
+    </div>
+    <div id="debtEditHistoryBtn" style="display:none;margin-bottom:10px">
+      <button onclick="showDebtEditHistory()" style="background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);font-size:12px;font-weight:700;font-family:'Hind Siliguri',sans-serif;padding:7px 14px;border-radius:8px;cursor:pointer;width:100%">📋 সম্পাদনার ইতিহাস দেখুন</button>
+    </div>
     <button class="submit-btn" id="debtSubmitBtn" style="background:var(--purple);color:#fff" onclick="submitDebt()">💳 ঋণ যোগ করুন</button>
+  </div>
+</div>
+
+<!-- Debt Edit History Modal -->
+<div class="modal-overlay" id="debtHistoryModal" onclick="if(event.target===this)this.classList.remove('active')" style="z-index:260">
+  <div class="modal" style="max-height:80vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <div style="font-weight:700;margin-bottom:15px;">📋 ঋণ সম্পাদনার ইতিহাস</div>
+    <div id="debtHistoryList"></div>
   </div>
 </div>
 
@@ -473,9 +495,9 @@ const provider = new firebase.auth.GoogleAuthProvider();
 
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-let currentUser=null, transactions=[], trashItems=[], debts=[];
+let currentUser=null, transactions=[], trashItems=[], debts=[], debtTrashItems=[];
 let currentType='', currentFilter='all', editingId=null, editingDebtId=null;
-let txUnsub=null, trashUnsub=null, debtUnsub=null;
+let txUnsub=null, trashUnsub=null, debtUnsub=null, debtTrashUnsub=null;
 const today = new Date().toISOString().split('T')[0];
 
 // --- AUTH HANDLER ---
@@ -518,6 +540,7 @@ function doSignOut(){
 function txCol(){ return db.collection('users').doc(currentUser.uid).collection('transactions'); }
 function trashCol(){ return db.collection('users').doc(currentUser.uid).collection('trash'); }
 function debtCol(){ return db.collection('users').doc(currentUser.uid).collection('myDebts'); }
+function debtTrashCol(){ return db.collection('users').doc(currentUser.uid).collection('myDebtsTrash'); }
 
 function startListeners(){
   setLoading(true);
@@ -534,6 +557,11 @@ function startListeners(){
   debtUnsub = debtCol().orderBy('createdAt','desc').onSnapshot(snap=>{
     debts=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderDebtSummary(); renderDebtList();
+  });
+
+  debtTrashUnsub = debtTrashCol().orderBy('deletedAt','desc').onSnapshot(snap=>{
+    debtTrashItems=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderDebtTrashList();
   });
 }
 
