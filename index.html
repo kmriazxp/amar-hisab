@@ -32,10 +32,34 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;overflow-x:hidden}
 
-/* APP LOADING */
-#appLoading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:998;flex-direction:column;gap:14px}
-.spin{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* SKELETON SCREEN */
+#appLoading{position:fixed;inset:0;background:var(--bg);z-index:998;overflow-y:auto}
+.sk-bar{background:var(--surface);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.sk-nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);gap:0}
+.sk-nav-item{flex:1;height:44px;border-bottom:3px solid transparent}
+.sk-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 14px 8px}
+.sk-card{background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--border)}
+.sk-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px 14px 16px}
+.sk-action{background:var(--surface);border-radius:var(--rs);padding:12px 6px;height:80px;border:1px solid var(--border)}
+.sk-list{padding:0 14px}
+.sk-item{background:var(--surface);border-radius:var(--rs);padding:12px;margin-bottom:10px;height:64px;border:1px solid var(--border)}
+
+@keyframes shimmer{
+  0%{background-position:-400px 0}
+  100%{background-position:400px 0}
+}
+.sk{
+  background:linear-gradient(90deg,var(--border) 25%,var(--surface2) 50%,var(--border) 75%);
+  background-size:800px 100%;
+  animation:shimmer 1.4s infinite linear;
+  border-radius:8px;
+}
+.sk-h{height:12px;margin-bottom:6px}
+.sk-h2{height:18px;margin-bottom:8px}
+.sk-h3{height:10px}
+.sk-avatar{width:30px;height:30px;border-radius:50%}
+.sk-pill{height:12px;width:60px;border-radius:20px}
+.sk-icon{width:34px;height:34px;border-radius:10px;margin-bottom:10px}
 
 /* LOGIN */
 #loginScreen{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:30px}
@@ -236,8 +260,41 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 <body>
 
 <div id="appLoading">
-  <div class="spin"></div>
-  <div style="font-size:13px;color:var(--muted)">লোড হচ্ছে...</div>
+  <!-- Status Bar Skeleton -->
+  <div class="sk-bar">
+    <div class="sk sk-pill" style="width:110px;height:16px"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="sk sk-avatar"></div>
+      <div class="sk sk-pill" style="width:70px"></div>
+      <div class="sk sk-pill" style="width:50px;height:26px;border-radius:8px"></div>
+    </div>
+  </div>
+  <!-- Nav Tabs Skeleton -->
+  <div class="sk-nav">
+    <div class="sk-nav-item" style="padding:12px 8px"><div class="sk sk-h" style="width:70%;margin:auto"></div></div>
+    <div class="sk-nav-item" style="padding:12px 8px"><div class="sk sk-h" style="width:70%;margin:auto"></div></div>
+    <div class="sk-nav-item" style="padding:12px 8px"><div class="sk sk-h" style="width:70%;margin:auto"></div></div>
+    <div class="sk-nav-item" style="padding:12px 8px"><div class="sk sk-h" style="width:70%;margin:auto"></div></div>
+  </div>
+  <!-- Summary Cards Skeleton -->
+  <div class="sk-grid">
+    <div class="sk-card"><div class="sk sk-icon"></div><div class="sk sk-h3" style="width:60%"></div><div class="sk sk-h2" style="margin-top:8px;width:80%"></div></div>
+    <div class="sk-card"><div class="sk sk-icon"></div><div class="sk sk-h3" style="width:60%"></div><div class="sk sk-h2" style="margin-top:8px;width:80%"></div></div>
+    <div class="sk-card"><div class="sk sk-icon"></div><div class="sk sk-h3" style="width:60%"></div><div class="sk sk-h2" style="margin-top:8px;width:80%"></div></div>
+    <div class="sk-card"><div class="sk sk-icon"></div><div class="sk sk-h3" style="width:60%"></div><div class="sk sk-h2" style="margin-top:8px;width:80%"></div></div>
+  </div>
+  <!-- Action Buttons Skeleton -->
+  <div class="sk-actions">
+    <div class="sk-action sk"></div>
+    <div class="sk-action sk"></div>
+    <div class="sk-action sk"></div>
+  </div>
+  <!-- List Skeleton -->
+  <div class="sk-list">
+    <div class="sk sk-item" style="margin-bottom:10px"></div>
+    <div class="sk sk-item" style="margin-bottom:10px;opacity:.75"></div>
+    <div class="sk sk-item" style="opacity:.5"></div>
+  </div>
 </div>
 
 <div id="loginScreen">
